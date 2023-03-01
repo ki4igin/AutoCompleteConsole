@@ -2,10 +2,10 @@
 
 namespace MyConsole;
 
-public class Status
+public class Status : IDisposable
 {
-    private IInputProvider _inputProvider;
-
+    private readonly IInputProvider _inputProvider;
+    
     private readonly Writer _writer;
 
     public string Text { get; private set; }
@@ -14,52 +14,42 @@ public class Status
 
     public int Position { get; }
 
-    private EscColor _color;
+    private readonly EscColor _color;
 
-    public Status(Writer writer, IInputProvider inputProvider, int position, EscColor color = EscColor.Reset)
+    private readonly Action<Status> _disposeAction;
+
+    public Status(Writer writer, Action<Status> disposeAction, IInputProvider inputProvider, int position, EscColor color = EscColor.Reset)
     {
+        _disposeAction = disposeAction;
         _writer = writer;
         Position = position;
         _color = color;
         Text = "";
         
         _inputProvider = inputProvider;
-        Redirect(inputProvider);
-    }
-
-    public void Redirect(IInputProvider inputProvider)
-    {
-        _inputProvider = inputProvider;
         _inputProvider.Updated = Write;
-        _inputProvider.Completed = s =>
+        _inputProvider.Completed = _ =>
         {
             Clear();
-            _writer.WriteLine(Environment.NewLine + s, _color);
         };
     }
 
     public void Write(string str)
     {
-        Text = _color switch 
-        {
-            EscColor.Reset => str,
-            _ => str.Color(_color)
-        };
+        Text = str.Color(_color);
         _writer.WriteDown(_inputProvider.ClearString + Text, Position, _inputProvider.Height);
     }
 
-    public void Clear()
+    private void Clear()
     {
         Text = "";
         _writer.WriteDown(_inputProvider.ClearString, Position, 1);
         _inputProvider.Clear();
     }
 
-    public string GetUpdateString() =>
-        _writer.GetWriteDownString(
-            ClearString +
-            Environment.NewLine +
-            Text,
-            Position - 1,
-            Height + 1);
+    public void Dispose()
+    {
+        Clear();
+        _disposeAction.Invoke(this);
+    }
 }

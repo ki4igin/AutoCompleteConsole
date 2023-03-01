@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+using MyConsole.InputProvider;
 
 namespace MyConsole;
 
@@ -7,51 +9,36 @@ public class Writer
     private readonly object _lockObj = new();
     private (int left, int top) _cursorPosition;
 
-    public Func<string>? NewLineSuffixString { get; set; }
+    private readonly List<Status> _statuses;
 
     public Writer()
     {
+        _statuses = new();
         _cursorPosition = (0, 0);
-        NewLineSuffixString = () => "";
     }
 
-    public void Write(string str)
-    {
-        lock (_lockObj)
-        {
-            string strSuffix = "";
-            if (IsNewLine(str))
-            {
-                strSuffix =
-                    NewLineSuffixString?.Invoke() +
-                    Esc.CursorPositionLeft(_cursorPosition.left + 1);
-            }
-
-            Console.Write(str + strSuffix);
-        }
-    }
+    public void Write(string str) =>
+        Write(str, EscColor.Reset);
 
     public void Write(string str, EscColor color)
     {
         lock (_lockObj)
         {
             string strSuffix = "";
-            int cursorPositionLeft = _cursorPosition.left;
             if (IsNewLine(str))
             {
                 strSuffix =
-                    NewLineSuffixString?.Invoke() +
+                    GetNewLineSuffixString() +
                     Esc.CursorPositionLeft(_cursorPosition.left + 1);
             }
 
-            Console.Write(str.Color(color));
-            Console.Write(strSuffix);
+            Console.Write(str.Color(color) + strSuffix);
         }
     }
 
     public void WriteLine(string str) =>
         Write(str + Environment.NewLine);
-    
+
     public void WriteLine(string str, EscColor color) =>
         Write(str + Environment.NewLine, color);
 
@@ -107,5 +94,29 @@ public class Writer
         }
 
         return isNewLine;
+    }
+
+    public Status CreateStatus(int position, IInputProvider inputProvider, EscColor color = EscColor.Reset)
+    {
+        Status status = new(this, s => _statuses.Remove(s), inputProvider, position, color);
+        _statuses.Add(status);
+        return status;
+    }
+    
+
+    private string GetNewLineSuffixString()
+    {
+        StringBuilder sb = new();
+        foreach (var status in _statuses.OrderByDescending(s => s.Position))
+        {
+            sb.Append(GetWriteDownString(
+                status.ClearString +
+                Environment.NewLine +
+                status.Text,
+                status.Position - 1,
+                status.Height + 1));
+        }
+
+        return sb.ToString();
     }
 }

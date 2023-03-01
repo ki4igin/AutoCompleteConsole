@@ -8,6 +8,15 @@ Console.Write(Esc.Clear);
 // Console.Write(Esc.CursorHide);
 
 
+// var progressBar = new ProgressBar(100);
+// for (int i = 0; i <= 100; i++)
+// {
+//     progressBar.Increment();
+//     Thread.Sleep(100);
+// }
+
+
+
 AutoCompleteInput rd = AutoCompleteInput
     .Create(new[]
         {
@@ -23,8 +32,7 @@ AutoCompleteInput rd = AutoCompleteInput
     .TextColor(EscColor.ForegroundYellow)
     .Build();
 Writer wr = new();
-Status rdrStatus = new(wr, rd, 3, EscColor.ForegroundDarkBlue);
-Status testStatus = new(wr, new TestInput(), 2, EscColor.ForegroundDarkBlue);
+
 Selector selector = Selector
     .Create(
         "Menu",
@@ -40,14 +48,15 @@ Selector selector = Selector
     .Comment("Press Esc")
     .CommentColor(EscColor.ForegroundDarkWhite)
     .Build();
-Status selStatus = new(wr, selector, 3, EscColor.ForegroundDarkBlue);
 
 Request request = Request
     .Create("Whats?", s => int.TryParse(s, out int res), "55")
     .Build();
-Status reqStatus = new(wr, request, 3, EscColor.ForegroundDarkBlue);
 
-wr.NewLineSuffixString = UpdateStatus;
+Status testStatus = wr.CreateStatus(2, new TestInput(), EscColor.ForegroundDarkBlue);
+Status reqStatus = wr.CreateStatus(3, request, EscColor.ForegroundDarkBlue);
+Status rdrStatus = wr.CreateStatus(3, rd, EscColor.ForegroundDarkBlue);
+Status selStatus = wr.CreateStatus(3, selector, EscColor.ForegroundDarkBlue);
 
 wr.WriteLine("Привет, мир!");
 
@@ -81,6 +90,7 @@ while (true)
     string cmd = rd.ReadLine();
     if (cmd == "sel")
     {
+        testStatus.Dispose();
         // rdrStatus.Redirect(selector);
         selector.Run();
         // rdrStatus.Redirect(rd);
@@ -93,18 +103,3 @@ while (true)
         // rdrStatus.Redirect(rd);
     }
 }
-
-string UpdateStatus() =>
-    reqStatus.GetUpdateString() +
-    rdrStatus.GetUpdateString() +
-    selStatus.GetUpdateString() +
-    testStatus.GetUpdateString();
-
-// {
-//     return
-//         Esc.CursorDown(2) +
-//         Reader.ClearString +
-//         Environment.NewLine +
-//         status.Color(EscColor.ForegroundDarkBlue) +
-//         Esc.CursorUp(2 + Reader.Height);
-// }
