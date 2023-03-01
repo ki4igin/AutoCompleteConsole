@@ -53,15 +53,15 @@ Request request = Request
     .Create("Whats?", s => int.TryParse(s, out int res), "55")
     .Build();
 
-Status testStatus = wr.CreateStatus(2, new TestInput(), EscColor.ForegroundDarkBlue);
-Status reqStatus = wr.CreateStatus(3, request, EscColor.ForegroundDarkBlue);
-Status rdrStatus = wr.CreateStatus(3, rd, EscColor.ForegroundDarkBlue);
-Status selStatus = wr.CreateStatus(3, selector, EscColor.ForegroundDarkBlue);
+ProgressBar testInput = new ProgressBar(100);
+Status testStatus = wr.CreateStatus(2, testInput);
+Status reqStatus = wr.CreateStatus(3, request);
+Status rdrStatus = wr.CreateStatus(3, rd);
+Status selStatus = wr.CreateStatus(3, selector);
 
 wr.WriteLine("Привет, мир!");
 
-testStatus.Write("==========================================");
-
+// testInput.Write(new string('=', 40));
 
 // selector.Updated = s => selStatus.Write(s);
 
@@ -76,7 +76,10 @@ Task.Run(() =>
     {
         string str = $"{cnt++ % 1000}";
         if (cnt % 16 == 0)
+        {
+            testInput.Increment();
             wr.Write(str);
+        }
         else
             wr.Write(str, EscColor.ForegroundRed);
         Thread.Sleep(10);
@@ -90,7 +93,6 @@ while (true)
     string cmd = rd.ReadLine();
     if (cmd == "sel")
     {
-        testStatus.Dispose();
         // rdrStatus.Redirect(selector);
         selector.Run();
         // rdrStatus.Redirect(rd);

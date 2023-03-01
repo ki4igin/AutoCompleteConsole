@@ -58,7 +58,7 @@ public class Request : IInputProvider
 
             if (keyInfo.Key == ConsoleKey.Enter)
             {
-                if (_validator(sb.ToString()) is true)
+                if (_validator(sb.ToString()))
                     break;
 
                 if (--_maxCountAttempts == 0)

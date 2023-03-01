@@ -5,38 +5,46 @@ namespace MyConsole;
 public class Status : IDisposable
 {
     private readonly IInputProvider _inputProvider;
-    
+
     private readonly Writer _writer;
 
-    public string Text { get; private set; }
-    public string ClearString => _inputProvider.ClearString;
-    public int Height => _inputProvider.Height;
+    private string Text { get; set; }
 
     public int Position { get; }
 
-    private readonly EscColor _color;
-
     private readonly Action<Status> _disposeAction;
 
-    public Status(Writer writer, Action<Status> disposeAction, IInputProvider inputProvider, int position, EscColor color = EscColor.Reset)
+    public Status(
+        Writer writer,
+        Action<Status> disposeAction,
+        IInputProvider inputProvider,
+        int position)
     {
         _disposeAction = disposeAction;
         _writer = writer;
         Position = position;
-        _color = color;
         Text = "";
-        
+
         _inputProvider = inputProvider;
-        _inputProvider.Updated = Write;
-        _inputProvider.Completed = _ =>
-        {
-            Clear();
-        };
+        _inputProvider.Updated = Change;
+        _inputProvider.Completed = _ => { Clear(); };
     }
 
-    public void Write(string str)
+    public string GetUpdateNewLineString() =>
+        Esc.GetDownString(
+            _inputProvider.ClearString + Environment.NewLine + Text,
+            Position - 1,
+            _inputProvider.Height + 1);
+
+    public void Dispose()
     {
-        Text = str.Color(_color);
+        Clear();
+        _disposeAction.Invoke(this);
+    }
+
+    private void Change(string str)
+    {
+        Text = str;
         _writer.WriteDown(_inputProvider.ClearString + Text, Position, _inputProvider.Height);
     }
 
@@ -45,11 +53,5 @@ public class Status : IDisposable
         Text = "";
         _writer.WriteDown(_inputProvider.ClearString, Position, 1);
         _inputProvider.Clear();
-    }
-
-    public void Dispose()
-    {
-        Clear();
-        _disposeAction.Invoke(this);
     }
 }

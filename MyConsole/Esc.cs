@@ -61,6 +61,13 @@ public static class Esc
     public const string CursorDisableBlinking = "\u001b[?12l";
     public const string CursorShow = "\u001b[?25h";
     public const string CursorHide = "\u001b[?25l";
+    
+    public const string Clear = "\u001b[2J";
+    public const string ClearCurrentLine = "\u001b[2K";
+    public const string CursorHome = "\u001b[H";
+    
+    public const string CursorSavePosition = "\u001b[s";
+    public const string CursorRestorePosition = "\u001b[u";
 
     public static string Color(this string str, EscColor color) =>
         color switch
@@ -76,28 +83,24 @@ public static class Esc
             _ => $"\u001b[{(int)color}m{ch}{Reset}"
         };
 
-
-    public const string Clear = "\u001b[2J";
-    public const string ClearCurrentLine = "\u001b[2K";
-    public const string CursorHome = "\u001b[H";
     public static string CursorUp(int offset = 1) => $"\u001b[{offset}A";
     public static string CursorDown(int offset = 1) => $"\u001b[{offset}B";
-
     public static string CursorRight(int offset = 1) => $"\u001b[{offset}C";
     public static string CursorLeft(int offset = 1) => $"\u001b[{offset}D";
     public static string CursorPositionLeft(int position ) => $"\u001b[{position}G";
     public static string CursorPositionTop(int position ) => $"\u001b[{position}d";
     public static string CursorPosition(int left, int top) => $"\u001b[{left};{top}H";
-
-
     public static string InsertCharacter(int count) => $"\u001b[{count}@";
     public static string DeleteCharacter(int count) => $"\u001b[{count}P";
     public static string EraseCharacter(int count) => $"\u001b[{count}X";
     public static string InsertLine(int count) => $"\u001b[{count}L";
     public static string DeleteLine(int count) => $"\u001b[{count}M";
-
     public static string ScrollUp(int count) => $"\u001b[{count}S";
     public static string ScrollDown(int count) => $"\u001b[{count}T";
-    public const string CursorSavePosition = "\u001b[s";
-    public const string CursorRestorePosition = "\u001b[u";
+
+    public static string GetDownString(string str, int offset, int height) =>
+        '\r' +
+        new string('\n', offset) +
+        str +
+        CursorUp(offset + height - 1);
 }

@@ -53,19 +53,11 @@ public class Writer
         lock (_lockObj)
         {
             string s =
-                GetWriteDownString(str, offset, height) +
+                Esc.GetDownString(str, offset, height) +
                 Esc.CursorPositionLeft(_cursorPosition.left + 1);
             Console.Write(s);
         }
     }
-
-    public string GetWriteDownString(string str, int offset, int height) =>
-        '\r' +
-        // Esc.CursorDown(offset) +
-        new string('\n', offset) +
-        str +
-        Esc.CursorUp(offset + height - 1);
-
 
     private bool IsNewLine(string str)
     {
@@ -96,25 +88,20 @@ public class Writer
         return isNewLine;
     }
 
-    public Status CreateStatus(int position, IInputProvider inputProvider, EscColor color = EscColor.Reset)
+    public Status CreateStatus(int position, IInputProvider inputProvider)
     {
-        Status status = new(this, s => _statuses.Remove(s), inputProvider, position, color);
+        Status status = new(this, s => _statuses.Remove(s), inputProvider, position);
         _statuses.Add(status);
         return status;
     }
-    
 
     private string GetNewLineSuffixString()
     {
         StringBuilder sb = new();
         foreach (var status in _statuses.OrderByDescending(s => s.Position))
         {
-            sb.Append(GetWriteDownString(
-                status.ClearString +
-                Environment.NewLine +
-                status.Text,
-                status.Position - 1,
-                status.Height + 1));
+            string str = status.GetUpdateNewLineString(); 
+            sb.Append(str);
         }
 
         return sb.ToString();
