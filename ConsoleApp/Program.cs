@@ -2,9 +2,8 @@
 using MyConsole;
 using MyConsole.InputProvider;
 
-NativeTerminal.EnableVirtualTerminalProcessing();
+MainConsole mc = new();
 
-Console.Write(Esc.Clear);
 // Console.Write(Esc.CursorHide);
 
 
@@ -16,22 +15,6 @@ Console.Write(Esc.Clear);
 // }
 
 
-
-AutoCompleteInput rd = AutoCompleteInput
-    .Create(new[]
-        {
-            "clear", "start", "stop", "text", "quit",
-            "clear", "start", "stop", "text", "quit",
-            "clear", "start", "stop", "text", "quit",
-            "clear", "start", "stop", "text", "quit",
-            "clear", "start", "stop", "text", "quit",
-            "clear", "start", "stop", "text", "quit",
-            "clear", "start", "stop", "text", "quit"
-        }
-    )
-    .TextColor(EscColor.ForegroundYellow)
-    .Build();
-Writer wr = new();
 
 Selector selector = Selector
     .Create(
@@ -50,36 +33,35 @@ Selector selector = Selector
     .Build();
 
 Request request = Request
-    .Create("Whats?", s => int.TryParse(s, out int res), "55")
+    .Create("Whats?", s => int.TryParse(s, out int _), "55")
     .Build();
 
 ProgressBar testInput = new ProgressBar();
-Status testStatus = wr.CreateStatus(2, testInput);
-Status reqStatus = wr.CreateStatus(3, request);
-Status rdrStatus = wr.CreateStatus(3, rd);
-Status selStatus = wr.CreateStatus(3, selector);
+IDisposable testStatus = mc.CreateStatus(testInput);
+IDisposable reqStatus = mc.CreateStatus(request);
+IDisposable selStatus = mc.CreateStatus(selector);
 
-wr.WriteLine("Привет, мир!");
+mc.WriteLine("Привет, мир!");
 
 // testInput.Write(new string('=', 40));
 // selector.Updated = s => selStatus.Write(s);
 // rd.Completed = s => wr.WriteLine(s.Color(EscColor.ForegroundDarkYellow));
 // rd.Updated = s => rdrStatus.Write(s);
 
-
+int cnt = 0;
 Task.Run(() =>
 {
-    int cnt = 0;
+    
     while (true)
     {
         string str = $"{cnt++ % 1000}";
         if (cnt % 16 == 0)
         {
-            testInput.Value += 0.01;
-            wr.Write(str);
+            testInput.Report(cnt / 1000.0);
+            mc.Write(str);
         }
         else
-            wr.Write(str, EscColor.ForegroundRed);
+            mc.Write(str, EscColor.ForegroundRed);
         Thread.Sleep(10);
     }
 });
@@ -88,7 +70,11 @@ Task.Run(() =>
 
 while (true)
 {
-    string cmd = rd.ReadLine();
+    string cmd = mc.ReadLine();
+    if (cmd == "clr")
+    {
+        cnt = 0;
+    }
     if (cmd == "sel")
     {
         // rdrStatus.Redirect(selector);
@@ -99,7 +85,13 @@ while (true)
     if (cmd == "req")
     {
         // rdrStatus.Redirect(selector);
-        request.Run();
+        request.ReadLine();
+        // rdrStatus.Redirect(rd);
+    }
+    if (cmd == "quit")
+    {
+        // rdrStatus.Redirect(selector);
+        return;
         // rdrStatus.Redirect(rd);
     }
 }

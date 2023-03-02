@@ -1,10 +1,9 @@
 ﻿using System.Text;
-using System.Text.RegularExpressions;
 using MyConsole.InputProvider;
 
 namespace MyConsole;
 
-public class Writer
+internal class Writer
 {
     private readonly object _lockObj = new();
     private (int left, int top) _cursorPosition;
@@ -95,12 +94,22 @@ public class Writer
         return status;
     }
 
+    public void Clear()
+    {
+        lock (_lockObj)
+        {
+            Console.Write(Esc.Clear);
+            Console.Write(Esc.CursorPosition(0, 0));
+            _cursorPosition = (0, 0);
+        }
+    }
+
     private string GetNewLineSuffixString()
     {
         StringBuilder sb = new();
         foreach (var status in _statuses.OrderByDescending(s => s.Position))
         {
-            string str = status.GetUpdateNewLineString(); 
+            string str = status.GetUpdateNewLineString();
             sb.Append(str);
         }
 

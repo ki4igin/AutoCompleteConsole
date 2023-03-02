@@ -1,46 +1,21 @@
 ﻿namespace MyConsole.InputProvider;
 
-public class ProgressBar : IInputProvider
+public class ProgressBar : IInputProvider, IProgress<double>
 {
-    private readonly double _maximum;
-    private readonly double _tolerance;
+    private const double Tolerance = 0.001;
+
     private double _oldValue;
     private double _value;
 
-    public double Value
-    {
-        get => _value;
-        set
-        {
-            _value = (value, _maximum) switch
-            {
-                (< 0, _) => 0,
-                var (v, m) when v > m => m,
-                _ => value
-            };
-            if (Math.Abs(_oldValue - _value) > _tolerance)
-            {
-                _oldValue = _value;
-                Updated?.Invoke(GetContextString());
-            }
-        }
-    }
-
-    public string ClearString { get; } = Esc.ClearCurrentLine;
-    public int Height { get; } = 1;
+    public string ClearString => Esc.ClearCurrentLine;
+    public int Height => 1;
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
-    public ProgressBar() : this(1)
-    {
-    }
-
-    public ProgressBar(double maximum)
+    public ProgressBar()
     {
         _value = 0;
         _oldValue = 0;
-        _maximum = maximum;
-        _tolerance = maximum / 1000;
     }
 
     private string GetContextString()
@@ -48,15 +23,33 @@ public class ProgressBar : IInputProvider
         int width = Console.WindowWidth - 12;
         if (width > 80 - 12)
             width = 80 - 12;
-        int completeWidth = (int) (Value / _maximum * width);
+        int completeWidth = (int) (_value * width);
         int incompleteWidth = width - completeWidth;
 
-        return
-            $"[{new string('#', completeWidth)}{new string(' ', incompleteWidth)}] {Value / _maximum:P0}";
+        return _value switch
+        {
+            < Tolerance => "",
+            > 1 - Tolerance => "Done",
+            _ => $"[{new('#', completeWidth)}{new(' ', incompleteWidth)}] {_value:P0}"
+        };
     }
 
     public void Clear()
     {
-        throw new NotImplementedException();
+        _value = 0;
+    }
+
+    public void Report(double value)
+    {
+        _value = value switch
+        {
+            < 0 => 0,
+            > 1 => 1,
+            _ => value
+        };
+        if ((Math.Abs(_oldValue - _value) > Tolerance) is false)
+            return;
+        _oldValue = _value;
+        Updated?.Invoke(GetContextString());
     }
 }

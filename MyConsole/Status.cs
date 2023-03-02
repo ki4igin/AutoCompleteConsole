@@ -2,17 +2,14 @@
 
 namespace MyConsole;
 
-public class Status : IDisposable
+internal class Status : IDisposable
 {
     private readonly IInputProvider _inputProvider;
-
     private readonly Writer _writer;
+    private readonly Action<Status> _disposeAction;
 
     private string Text { get; set; }
-
     public int Position { get; }
-
-    private readonly Action<Status> _disposeAction;
 
     public Status(
         Writer writer,
@@ -38,6 +35,8 @@ public class Status : IDisposable
 
     public void Dispose()
     {
+        _inputProvider.Updated = null;
+        _inputProvider.Completed = null;
         Clear();
         _disposeAction.Invoke(this);
     }

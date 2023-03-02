@@ -45,7 +45,7 @@ public class Request : IInputProvider
     public static RequestBuilder Create(string title, Predicate<string>? validator = null, string defaultValue = "") =>
         new(new(title, validator, defaultValue));
 
-    public string Run()
+    public string ReadLine()
     {
         int cursorPosition = _defaultValue.Length;
         StringBuilder sb = new(_defaultValue);

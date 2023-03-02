@@ -47,41 +47,31 @@ public enum EscColor
     BackgroundWhite = 107,
 };
 
-public static class Esc
+internal static class Esc
 {
-    public const string Reset = "\u001b[0m";
-    public const string Bright = "\u001b[1m";
-    public const string Dim = "\u001b[2m";
-    public const string Underline = "\u001b[4m";
-    public const string Blink = "\u001b[5m";
-    public const string Reverse = "\u001b[7m";
-    public const string Hidden = "\u001b[8m";
-
     public const string CursorEnableBlinking = "\u001b[?12h";
     public const string CursorDisableBlinking = "\u001b[?12l";
     public const string CursorShow = "\u001b[?25h";
     public const string CursorHide = "\u001b[?25l";
+    public const string CursorHome = "\u001b[H";
+    public const string CursorSavePosition = "\u001b[s";
+    public const string CursorRestorePosition = "\u001b[u";
     
     public const string Clear = "\u001b[2J";
     public const string ClearCurrentLine = "\u001b[2K";
-    public const string CursorHome = "\u001b[H";
-    
-    public const string CursorSavePosition = "\u001b[s";
-    public const string CursorRestorePosition = "\u001b[u";
+
+    public const string ScreenBufferAlternative = "\u001b[?1049h";
+    public const string ScreenBufferMain = "\u001b[?1049l";
 
     public static string Color(this string str, EscColor color) =>
         color switch
         {
             EscColor.Reset => str,
-            _ => $"\u001b[{(int)color}m{str}{Reset}"
+            _ => $"\u001b[{(int)color}m{str}{EscColor.Reset}"
         };
 
     public static string Color(this char ch, EscColor color) =>
-        color switch
-        {
-            EscColor.Reset => $"{ch}",
-            _ => $"\u001b[{(int)color}m{ch}{Reset}"
-        };
+        Color(ch.ToString(), color);
 
     public static string CursorUp(int offset = 1) => $"\u001b[{offset}A";
     public static string CursorDown(int offset = 1) => $"\u001b[{offset}B";

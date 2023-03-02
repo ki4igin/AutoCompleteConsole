@@ -2,7 +2,7 @@
 
 namespace MyConsole.InputProvider;
 
-public class AutoCompleteInput : IInputProvider
+internal class AutoCompleteInput : IInputProvider
 {
     private readonly List<string> _keyWords;
     private readonly List<string> _history;
@@ -25,7 +25,7 @@ public class AutoCompleteInput : IInputProvider
         CursorColor = EscColor.BackgroundDarkMagenta;
     }
 
-    public static AutoCompleteInputBuilder Create(IEnumerable<string> keyWords) =>
+    public static AutoCompleteInputBuilder With(IEnumerable<string> keyWords) =>
         new(new(keyWords));
     
 

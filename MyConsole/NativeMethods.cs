@@ -2,13 +2,13 @@
 
 namespace MyConsole;
 
-public class NativeTerminal
+internal static class NativeTerminal
 {
     [Flags]
     private enum OutputModeFlags
     {
-        EnableProcessedOutput = 0x01,
-        EnableWrapAtEolOutput = 0x02,
+        // EnableProcessedOutput = 0x01,
+        // EnableWrapAtEolOutput = 0x02,
         EnableVirtualTerminalProcessing = 0x04,
     }
     
