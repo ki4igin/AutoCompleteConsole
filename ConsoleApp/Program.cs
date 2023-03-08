@@ -37,9 +37,9 @@ Request request = Request
     .Build();
 
 ProgressBar testInput = new ProgressBar();
-IDisposable testStatus = mc.CreateStatus(testInput);
-IDisposable reqStatus = mc.CreateStatus(request);
-IDisposable selStatus = mc.CreateStatus(selector);
+// IDisposable testStatus = mc.CreateStatus(testInput);
+mc.AddInputToStatus(request);
+mc.AddInputToStatus(selector);
 
 mc.WriteLine("Привет, мир!");
 
@@ -62,7 +62,7 @@ Task.Run(() =>
         }
         else
             mc.Write(str, EscColor.ForegroundRed);
-        Thread.Sleep(10);
+        Thread.Sleep(100);
     }
 });
 

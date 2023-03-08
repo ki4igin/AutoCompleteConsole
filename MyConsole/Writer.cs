@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using MyConsole.InputProvider;
 
 namespace MyConsole;
 
@@ -87,10 +86,11 @@ internal class Writer
         return isNewLine;
     }
 
-    public Status CreateStatus(int position, IInputProvider inputProvider)
+    public Status CreateStatus(int position)
     {
-        Status status = new(this, s => _statuses.Remove(s), inputProvider, position);
+        Status status = new(position);
         _statuses.Add(status);
+        status.Changed = WriteDown; 
         return status;
     }
 

@@ -1,56 +1,61 @@
-﻿using MyConsole.InputProvider;
+﻿using System.Text;
+using MyConsole.InputProvider;
 
 namespace MyConsole;
 
-internal class Status : IDisposable
+internal class Status
 {
-    private readonly IInputProvider _inputProvider;
-    private readonly Writer _writer;
-    private readonly Action<Status> _disposeAction;
+    private int _height;
+    private string _clearString;
 
     private string Text { get; set; }
     public int Position { get; }
 
-    public Status(
-        Writer writer,
-        Action<Status> disposeAction,
-        IInputProvider inputProvider,
-        int position)
+    public Action<string, int, int>? Changed { get; set; }
+
+    public Status(int position)
     {
-        _disposeAction = disposeAction;
-        _writer = writer;
+        _clearString = Esc.ClearCurrentLine;
         Position = position;
         Text = "";
+    }
 
-        _inputProvider = inputProvider;
-        _inputProvider.Updated = Change;
-        _inputProvider.Completed = _ => { Clear(); };
+    public void AddInput(IInputProvider input)
+    {
+        input.Updated = Change;
+        input.Completed = _ => { Clear(); };
     }
 
     public string GetUpdateNewLineString() =>
         Esc.GetDownString(
-            _inputProvider.ClearString + Environment.NewLine + Text,
+            _clearString + Environment.NewLine + Text,
             Position - 1,
-            _inputProvider.Height + 1);
-
-    public void Dispose()
-    {
-        _inputProvider.Updated = null;
-        _inputProvider.Completed = null;
-        Clear();
-        _disposeAction.Invoke(this);
-    }
+            _height + 1);
 
     private void Change(string str)
     {
         Text = str;
-        _writer.WriteDown(_inputProvider.ClearString + Text, Position, _inputProvider.Height);
+        string clearString = GetClearString(_height);
+        _height = str.Split('\n').Length;
+        Changed?.Invoke(clearString + str, Position, _height);
+        _clearString = GetClearString(_height);
     }
 
-    private void Clear()
+    private void Clear() =>
+        Change("");
+
+
+    private string GetClearString(int height)
     {
-        Text = "";
-        _writer.WriteDown(_inputProvider.ClearString, Position, 1);
-        _inputProvider.Clear();
+        StringBuilder sb = new(Esc.ClearCurrentLine);
+        for (int i = 0; i < height - 1; i++)
+        {
+            sb.Append(Environment.NewLine + Esc.ClearCurrentLine);
+        }
+
+        if (height > 1)
+            sb.Append(Esc.CursorUp(height - 1));
+
+        return sb.ToString();
     }
 }

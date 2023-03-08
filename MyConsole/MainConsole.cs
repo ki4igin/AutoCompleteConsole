@@ -7,6 +7,7 @@ public class MainConsole
     private readonly AutoCompleteInput _rd;
     private readonly Writer _wr;
     private readonly Dictionary<string, Action> _commands;
+    private readonly Status _rdStatus;
 
     public MainConsole()
     {
@@ -30,15 +31,19 @@ public class MainConsole
             .CursorColor(EscColor.BackgroundDarkMagenta)
             .Build();
 
-        CreateStatus(_rd);
+        _rdStatus = _wr.CreateStatus(3);
+        _rdStatus.AddInput(_rd);
     }
 
-    public IDisposable CreateStatus(IInputProvider input) =>
-        input switch
-        {
-            ProgressBar => _wr.CreateStatus(2, input),
-            _ => _wr.CreateStatus(3, input)
-        };
+    public void AddInputToStatus(IInputProvider input) =>
+        _rdStatus.AddInput(input);
+
+    // public IDisposable CreateStatus(IInputProvider input) =>
+    //     input switch
+    //     {
+    //         ProgressBar => _wr.CreateStatus(2),
+    //         _ => _wr.CreateStatus(3)
+    //     };
 
     public void Write(string str) => _wr.Write(str);
     public void Write(string str, EscColor color) => _wr.Write(str, color);

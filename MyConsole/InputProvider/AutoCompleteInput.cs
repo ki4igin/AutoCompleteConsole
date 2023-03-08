@@ -13,9 +13,6 @@ internal class AutoCompleteInput : IInputProvider
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
 
-   
-    public int Height { get; private set; } = 1;
-
     private AutoCompleteInput(IEnumerable<string> keyWords)
     {
         _history = new();
@@ -143,7 +140,6 @@ internal class AutoCompleteInput : IInputProvider
                             if ((tabCount++ & 0x01) == 0)
                             {
                                 Updated?.Invoke(GetContextString(all, all.Length));
-                                UpdateClearString(all);
                                 cursorPosition = sb.Length;
                                 continue;
                             }
@@ -171,35 +167,11 @@ internal class AutoCompleteInput : IInputProvider
             }
 
             Updated?.Invoke(GetContextString(sb.ToString(), cursorPosition));
-            UpdateClearString(sb.ToString());
         }
 
         Completed?.Invoke(sb.ToString());
         _history.Add(sb.ToString());
         return sb.ToString();
-    }
-
-    public void Clear()
-    {
-    }
-
-    public string ClearString { get; private set; } = Esc.ClearCurrentLine;
-
-    private void UpdateClearString(string str)
-    {
-        int height = str.Split('\n').Length;
-        StringBuilder sb = new(Esc.ClearCurrentLine);
-        for (int i = 0; i < height - 1; i++)
-        {
-            sb.Append(Environment.NewLine + Esc.ClearCurrentLine);
-        }
-
-        if (height > 1)
-        {
-            sb.Append(Esc.CursorUp(height - 1));
-        }
-
-        ClearString = sb.ToString();
     }
 
     private string GetContextString(string s, int i)
@@ -213,8 +185,6 @@ internal class AutoCompleteInput : IInputProvider
             strPrefix.Color(TextColor) +
             ch.Color(CursorColor) +
             strSuffix.Color(TextColor);
-
-        Height = str.Split('\n').Length;
 
         return str;
     }

@@ -17,8 +17,6 @@ public class Request : IInputProvider
     private EscColor ErrorMessageColor { get; set; }
     private EscColor CursorColor { get; set; }
     private EscColor CommentColor { get; set; }
-    public string ClearString { get; private set; }
-    public int Height { get; private set; }
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
@@ -34,9 +32,6 @@ public class Request : IInputProvider
         CursorColor = EscColor.BackgroundDarkMagenta;
         CommentColor = EscColor.Reset;
 
-        ClearString = Esc.ClearCurrentLine;
-        Height = 1;
-
         _validator = validator ?? (_ => true);
         _defaultValue = defaultValue;
         _maxCountAttempts = 3;
@@ -50,7 +45,6 @@ public class Request : IInputProvider
         int cursorPosition = _defaultValue.Length;
         StringBuilder sb = new(_defaultValue);
         Updated?.Invoke(GetContextString(_defaultValue, cursorPosition));
-        ClearString = GetClearString();
 
         while (true)
         {
@@ -128,18 +122,11 @@ public class Request : IInputProvider
             }
 
             Updated?.Invoke(GetContextString(sb.ToString(), cursorPosition));
-            ClearString = GetClearString();
         }
 
         Completed?.Invoke(sb.ToString());
 
         return sb.ToString();
-    }
-
-    public void Clear()
-    {
-        ClearString = Esc.ClearCurrentLine;
-        Height = 1;
     }
 
     private string GetContextString(string s, int i)
@@ -162,20 +149,7 @@ public class Request : IInputProvider
             sb.Append(Environment.NewLine + Comment.Color(CommentColor));
 
         string result = sb.ToString();
-        Height = result.Split('\n').Length;
         return result;
-    }
-
-    private string GetClearString()
-    {
-        StringBuilder sb = new(Esc.ClearCurrentLine);
-        for (int i = 0; i < Height - 1; i++)
-        {
-            sb.Append(Environment.NewLine + Esc.ClearCurrentLine);
-        }
-
-        sb.Append(Esc.CursorUp(Height - 1));
-        return sb.ToString();
     }
 
     public class RequestBuilder

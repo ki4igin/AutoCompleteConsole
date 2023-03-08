@@ -20,8 +20,6 @@ public class Selector : IInputProvider
     private EscColor CommentColor { get; set; }
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
-    public int Height { get; private set; }
-    public string ClearString { get; private set; }
 
     private Selector(string title, string[] items, int selectPosition = 1)
     {
@@ -36,8 +34,6 @@ public class Selector : IInputProvider
         CommentColor = EscColor.Reset;
 
         _selectPosition = selectPosition - 1;
-        Height = 1;
-        ClearString = Esc.ClearCurrentLine;
     }
 
     public static SelectorBuilder Create(string title, string[] items, int selectPosition = 1) =>
@@ -46,7 +42,6 @@ public class Selector : IInputProvider
     public string Run()
     {
         Updated?.Invoke(GetContextString());
-        ClearString = GetClearString();
         int itemsLength = Items.Length;
         int startSelectPosition = _selectPosition;
         ConsoleKey key;
@@ -82,12 +77,6 @@ public class Selector : IInputProvider
         return Items[_selectPosition];
     }
 
-    public void Clear()
-    {
-        ClearString = Esc.ClearCurrentLine;
-        Height = 1;
-    }
-
     private string GetContextString()
     {
         StringBuilder sb = new();
@@ -105,19 +94,6 @@ public class Selector : IInputProvider
         if (Comment != "")
             sb.Append(Environment.NewLine + Comment.Color(CommentColor));
 
-        Height = sb.ToString().Split('\n').Length;
-        return sb.ToString();
-    }
-
-    private string GetClearString()
-    {
-        StringBuilder sb = new(Esc.ClearCurrentLine);
-        for (int i = 0; i < Height - 1; i++)
-        {
-            sb.Append(Environment.NewLine + Esc.ClearCurrentLine);
-        }
-
-        sb.Append(Esc.CursorUp(Height - 1));
         return sb.ToString();
     }
 
