@@ -1,56 +1,60 @@
-﻿using System.Reflection;
-using System.Text;
+﻿using System.Text;
 
 namespace MyConsole.InputProvider;
 
 public class Selector : IInputProvider
 {
+    public record Context(string Title, string SubTitle, string[] Items, string Comment)
+    {
+        public Context(string title, string[] items) : this(title, "", items, "")
+        {
+        }
+
+        internal Context() : this("", "", new[] {""}, "")
+        {
+        }
+    }
+
+    public record Color(EscColor Title, EscColor SubTitle, EscColor Items, EscColor Select, EscColor Comment)
+    {
+        internal Color() : this(EscColor.Reset, EscColor.Reset, EscColor.Reset, EscColor.Reverse, EscColor.Reset)
+        {
+        }
+    }
+
     private const int StartListNumber = 1;
+    private Context _context;
+    private readonly Color _color;
 
-    private int _selectPosition;
-
-    private string Title { get; }
-    private string SubTitle { get; set; }
-    private string[] Items { get; }
-    private string Comment { get; set; }
-    private EscColor TitleColor { get; set; }
-    private EscColor SubTitleColor { get; set; }
-    private EscColor ItemsColor { get; set; }
-    private EscColor SelectColor { get; set; }
-    private EscColor CommentColor { get; set; }
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
 
-    private Selector(string title, string[] items, int selectPosition = 1)
+    public Selector() : this(new())
     {
-        Title = title;
-        SubTitle = "";
-        Items = items;
-        Comment = "";
-        TitleColor = EscColor.Reset;
-        SubTitleColor = EscColor.Reset;
-        ItemsColor = EscColor.Reset;
-        SelectColor = EscColor.Reverse;
-        CommentColor = EscColor.Reset;
-
-        _selectPosition = selectPosition - 1;
     }
 
-    public static SelectorBuilder Create(string title, string[] items, int selectPosition = 1) =>
-        new(new(title, items, selectPosition));
-    
-    public string Run()
+    public Selector(Color color)
     {
-        Updated?.Invoke(GetContextString());
-        int itemsLength = Items.Length;
-        int startSelectPosition = _selectPosition;
+        _color = color;
+        _context = new();
+    }
+
+    public string Run(Context context, int defaultSelectPosition = 1)
+    {
+        _context = context;
+        int startSelectPosition = defaultSelectPosition - 1;
+
+        Updated?.Invoke(GetContextString(startSelectPosition));
+        int itemsLength = _context.Items.Length;
+
+        int selectPosition = startSelectPosition;
         ConsoleKey key;
         do
         {
-            int oldStrPos = _selectPosition;
+            int oldStrPos = selectPosition;
             key = Console.ReadKey(true).Key;
 
-            _selectPosition = key switch
+            selectPosition = key switch
             {
                 ConsoleKey.UpArrow => (oldStrPos == 0) ? (itemsLength - 1) : (oldStrPos - 1),
                 ConsoleKey.DownArrow => (oldStrPos == itemsLength - 1) ? (0) : (oldStrPos + 1),
@@ -66,102 +70,35 @@ public class Selector : IInputProvider
                     key - ConsoleKey.NumPad0 - StartListNumber,
                 _ => oldStrPos
             };
-            if (oldStrPos == _selectPosition)
+            if (oldStrPos == selectPosition)
                 continue;
 
-            Updated?.Invoke(GetContextString());
+            Updated?.Invoke(GetContextString(selectPosition));
         } while (key is not ConsoleKey.Enter and not ConsoleKey.Escape);
 
-        Completed?.Invoke(Items[_selectPosition]);
-
-        return Items[_selectPosition];
+        string selectItem = _context.Items[selectPosition];
+        Completed?.Invoke(selectItem);
+        return selectItem;
     }
 
-    private string GetContextString()
+    private string GetContextString(int selectPosition)
     {
+        (string title, string subTitle, string[] items, string comment) = _context;
         StringBuilder sb = new();
-        sb.Append(Title.Color(TitleColor));
-        if (SubTitle != "")
-            sb.Append(Environment.NewLine + SubTitle.Color(SubTitleColor));
-        int alignment = Items.Select(s => s.Length).Max() + $"[{Items.Length}] ".Length;
-        for (int i = 0; i < Items.Length; i++)
+        sb.Append(title.Color(_color.Title));
+        if (subTitle != "")
+            sb.Append(Environment.NewLine + subTitle.Color(_color.SubTitle));
+        int alignment = items.Select(s => s.Length).Max() + $"[{items.Length}] ".Length;
+        for (int i = 0; i < items.Length; i++)
         {
             sb.Append(Environment.NewLine);
-            string itemStr = $"[{i + StartListNumber}] {Items[i]}".PadRight(alignment);
-            sb.Append(i == _selectPosition ? itemStr.Color(SelectColor) : itemStr.Color(ItemsColor));
+            string itemStr = $"[{i + StartListNumber}] {items[i]}".PadRight(alignment);
+            sb.Append(i == selectPosition ? itemStr.Color(_color.Select) : itemStr.Color(_color.Items));
         }
 
-        if (Comment != "")
-            sb.Append(Environment.NewLine + Comment.Color(CommentColor));
+        if (comment != "")
+            sb.Append(Environment.NewLine + comment.Color(_color.Comment));
 
         return sb.ToString();
-    }
-
-    public class SelectorBuilder
-    {
-        private readonly Selector _selector;
-
-        internal SelectorBuilder(Selector selector)
-            => _selector = selector;
-
-        public SelectorBuilder BaseColor(EscColor color)
-        {
-            EscColor selectColor = _selector.SelectColor;
-            foreach (PropertyInfo prop in typeof(Selector).GetProperties())
-            {
-                if (prop.PropertyType == typeof(EscColor))
-                {
-                    prop.SetValue(_selector, color);
-                }
-            }
-
-            _selector.SelectColor = selectColor;
-            return this;
-        }
-
-        public SelectorBuilder TitleColor(EscColor color)
-        {
-            _selector.TitleColor = color;
-            return this;
-        }
-
-        public SelectorBuilder SubTitleColor(EscColor color)
-        {
-            _selector.SubTitleColor = color;
-            return this;
-        }
-
-        public SelectorBuilder ItemsColor(EscColor color)
-        {
-            _selector.ItemsColor = color;
-            return this;
-        }
-
-        public SelectorBuilder SelectColor(EscColor color)
-        {
-            _selector.SelectColor = color;
-            return this;
-        }
-
-        public SelectorBuilder CommentColor(EscColor color)
-        {
-            _selector.CommentColor = color;
-            return this;
-        }
-
-        public SelectorBuilder SubTitle(string str)
-        {
-            _selector.SubTitle = str;
-            return this;
-        }
-
-        public SelectorBuilder Comment(string str)
-        {
-            _selector.Comment = str;
-            return this;
-        }
-
-        public Selector Build() =>
-            _selector;
     }
 }

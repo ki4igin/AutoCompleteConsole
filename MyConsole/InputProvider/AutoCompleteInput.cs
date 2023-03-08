@@ -4,27 +4,30 @@ namespace MyConsole.InputProvider;
 
 internal class AutoCompleteInput : IInputProvider
 {
+    public record Color(EscColor Text, EscColor Cursor)
+    {
+        internal Color() : this(EscColor.Reset, EscColor.Reverse)
+        {
+        }
+    }
+
+    private readonly Color _color;
     private readonly List<string> _keyWords;
     private readonly List<string> _history;
-    
-    private EscColor TextColor { get; set; }
-    private EscColor CursorColor { get; set; }
 
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
 
-    private AutoCompleteInput(IEnumerable<string> keyWords)
+    public AutoCompleteInput(IEnumerable<string> keyWords) : this(keyWords, new())
+    {
+    }
+
+    public AutoCompleteInput(IEnumerable<string> keyWords, Color color)
     {
         _history = new();
         _keyWords = new(keyWords);
-
-        TextColor = EscColor.Reset;
-        CursorColor = EscColor.BackgroundDarkMagenta;
+        _color = color;
     }
-
-    public static AutoCompleteInputBuilder With(IEnumerable<string> keyWords) =>
-        new(new(keyWords));
-    
 
     public void AddKeyWords(IEnumerable<string> keyWords)
     {
@@ -182,9 +185,9 @@ internal class AutoCompleteInput : IInputProvider
         string strSuffix = s[(i + 1)..];
 
         string str =
-            strPrefix.Color(TextColor) +
-            ch.Color(CursorColor) +
-            strSuffix.Color(TextColor);
+            strPrefix.Color(_color.Text) +
+            ch.Color(_color.Cursor) +
+            strSuffix.Color(_color.Text);
 
         return str;
     }
@@ -213,28 +216,5 @@ internal class AutoCompleteInput : IInputProvider
         }
 
         return sb.ToString();
-    }
-
-    public class AutoCompleteInputBuilder
-    {
-        private readonly AutoCompleteInput _autoCompleteInput;
-
-        internal AutoCompleteInputBuilder(AutoCompleteInput autoCompleteInput) =>
-            _autoCompleteInput = autoCompleteInput;
-
-        public AutoCompleteInputBuilder TextColor(EscColor color)
-        {
-            _autoCompleteInput.TextColor = color;
-            return this;
-        }
-        
-        public AutoCompleteInputBuilder CursorColor(EscColor color)
-        {
-            _autoCompleteInput.CursorColor = color;
-            return this;
-        }
-
-        public AutoCompleteInput Build() =>
-            _autoCompleteInput;
     }
 }

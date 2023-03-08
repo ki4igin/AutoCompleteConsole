@@ -15,26 +15,8 @@ MainConsole mc = new();
 // }
 
 
-
-Selector selector = Selector
-    .Create(
-        "Menu",
-        new[] { "clear", "start", "stop", "text", "quit" },
-        2)
-    .BaseColor(EscColor.ForegroundYellow)
-    .ItemsColor(EscColor.ForegroundYellow)
-    .SelectColor(EscColor.BackgroundDarkBlue)
-    .SubTitle("asdfasdf")
-    .SubTitleColor(EscColor.ForegroundGreen)
-    .TitleColor(EscColor.ForegroundDarkGreen)
-    .SelectColor(EscColor.Underline)
-    .Comment("Press Esc")
-    .CommentColor(EscColor.ForegroundDarkWhite)
-    .Build();
-
-Request request = Request
-    .Create("Whats?", s => int.TryParse(s, out int _), "55")
-    .Build();
+Selector selector = new();
+Request request = new Request();
 
 ProgressBar testInput = new ProgressBar();
 // IDisposable testStatus = mc.CreateStatus(testInput);
@@ -51,7 +33,6 @@ mc.WriteLine("Привет, мир!");
 int cnt = 0;
 Task.Run(() =>
 {
-    
     while (true)
     {
         string str = $"{cnt++ % 1000}";
@@ -62,6 +43,7 @@ Task.Run(() =>
         }
         else
             mc.Write(str, EscColor.ForegroundRed);
+
         Thread.Sleep(100);
     }
 });
@@ -75,19 +57,31 @@ while (true)
     {
         cnt = 0;
     }
+
     if (cmd == "sel")
     {
         // rdrStatus.Redirect(selector);
-        selector.Run();
+        selector.Run(
+            new(
+                "Menu",
+                new[] {"clear", "start", "stop", "text", "quit"}
+            ),
+            2
+        );
         // rdrStatus.Redirect(rd);
     }
 
     if (cmd == "req")
     {
         // rdrStatus.Redirect(selector);
-        request.ReadLine();
+        request.ReadLine(
+            new("Whats?", "Error"),
+            s => int.TryParse(s, out int _),
+            "55"
+        );
         // rdrStatus.Redirect(rd);
     }
+
     if (cmd == "quit")
     {
         // rdrStatus.Redirect(selector);

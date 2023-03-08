@@ -25,11 +25,11 @@ public class MainConsole
         };
 
         _wr = new();
-        _rd = AutoCompleteInput
-            .With(_commands.Keys)
-            .TextColor(EscColor.ForegroundBlue)
-            .CursorColor(EscColor.BackgroundDarkMagenta)
-            .Build();
+        _rd = new(_commands.Keys,
+            new(
+                EscColor.Reset,
+                EscColor.BackgroundDarkMagenta
+            ));
 
         _rdStatus = _wr.CreateStatus(3);
         _rdStatus.AddInput(_rd);
