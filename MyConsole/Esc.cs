@@ -67,7 +67,7 @@ internal static class Esc
         color switch
         {
             EscColor.Reset => str,
-            _ => $"\u001b[{(int)color}m{str}{EscColor.Reset}"
+            _ => $"\u001b[{(int)color}m{str}\u001b[{(int)EscColor.Reset}m"
         };
 
     public static string Color(this char ch, EscColor color) =>
