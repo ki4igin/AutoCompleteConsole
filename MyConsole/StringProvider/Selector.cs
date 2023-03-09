@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace MyConsole.InputProvider;
+namespace MyConsole.StringProvider;
 
-public class Selector : IInputProvider<Selector.Color>
+public class Selector : IStringProvider
 {
     public record Context(string Title, string SubTitle, string[] Items, string Comment)
     {
@@ -15,21 +15,28 @@ public class Selector : IInputProvider<Selector.Color>
         }
     }
 
-    public record Color(EscColor Title, EscColor SubTitle, EscColor Items, EscColor Select, EscColor Comment) : IColors
+    public record Color(
+        EscColor Title,
+        EscColor SubTitle,
+        EscColor Items,
+        EscColor Select,
+        EscColor Comment
+    )
     {
-        public Color() : this(EscColor.Reset, EscColor.Reset, EscColor.Reset, EscColor.Reverse, EscColor.Reset)
+        public Color() :
+            this(EscColor.Reset, EscColor.Reset, EscColor.Reset, EscColor.Reverse, EscColor.Reset)
         {
         }
     }
 
     private const int StartListNumber = 1;
     private Context _context;
-    private Color _color;
+    private readonly Color _color;
 
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
 
-    public Selector() : this(new())
+    internal Selector() : this(new())
     {
     }
 
@@ -37,11 +44,6 @@ public class Selector : IInputProvider<Selector.Color>
     {
         _color = color;
         _context = new();
-    }
-
-    public void SetColors(Color colors)
-    {
-        _color = colors;
     }
 
     public string Run(Context context, int defaultSelectPosition = 1)

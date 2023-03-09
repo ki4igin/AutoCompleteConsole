@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace MyConsole.InputProvider;
+namespace MyConsole.StringProvider;
 
-public class Request : IInputProvider
+public class Request : IStringProvider
 {
     public record Context(string Title, string SubTitle = "", string ErrorMessage = "", string Comment = "")
     {
@@ -11,7 +11,7 @@ public class Request : IInputProvider
         }
 
         internal Context() : this("")
-        {
+        { 
         }
     }
 

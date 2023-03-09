@@ -1,11 +1,11 @@
 ﻿using System.Runtime.InteropServices;
-using MyConsole.InputProvider;
+using MyConsole.StringProvider;
 
 namespace MyConsole;
 
 public class MainConsole
 {
-    private readonly AutoCompleteInput _rd;
+    private readonly AutoCompleteString _rd;
     private readonly Writer _wr;
     private readonly Dictionary<string, Action> _commands;
     private readonly Status _rdStatus;
@@ -36,41 +36,30 @@ public class MainConsole
         _rdStatus.AddInput(_rd);
     }
 
-    // public T Create<T, TC>(TC color) where T : class, IInputProvider<TC> where TC:IColorable
-    // {
-    //     T input = Activator.CreateInstance(typeof(T), color) as T;;
-    //     return input;
-    // }
-
-    // public Selector Create() => Create(new());
-
-    public T Create<T, TC>(TC color) where T : IInputProvider<TC>, new() where TC : IColors
+    public Selector CreateSelector(Selector.Color color)
     {
-        T input = new();
-        input.SetColors(color);
+        Selector input = new(color);
         _rdStatus.AddInput(input);
         return input;
     }
 
-    // public Request Create() => Create(new());
-
-    public Request Create(Request.Color color)
+    public Request CreateRequest(Request.Color color)
     {
         Request input = new(color);
         _rdStatus.AddInput(input);
         return input;
     }
-    //
-    // public ProgressBar CreateProgressBar()
-    // {
-    //     ProgressBar progressBar = new();
-    //     Status status = _wr.CreateStatus();
-    //     status.AddInput(progressBar);
-    //
-    //     progressBar.Completed = _ => _wr.DeleteStatus(status);
-    //
-    //     return progressBar;
-    // }
+    
+    public ProgressBar CreateProgressBar()
+    {
+        ProgressBar progressBar = new();
+        Status status = _wr.CreateStatus();
+        status.AddInput(progressBar);
+    
+        progressBar.Completed = _ => _wr.DeleteStatus(status);
+    
+        return progressBar;
+    }
 
     public void Write(string str) => _wr.Write(str);
     public void Write(string str, EscColor color) => _wr.Write(str, color);

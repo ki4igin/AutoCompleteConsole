@@ -1,6 +1,6 @@
-﻿namespace MyConsole.InputProvider;
+﻿namespace MyConsole.StringProvider;
 
-public class ProgressBar : IInputProvider, IProgress<double>
+public class ProgressBar : IStringProvider, IProgress<double>
 {
     private const double Tolerance = 0.001;
 
@@ -30,11 +30,6 @@ public class ProgressBar : IInputProvider, IProgress<double>
             > 1 - Tolerance => "Done",
             _ => $"[{new('#', completeWidth)}{new(' ', incompleteWidth)}] {_value:P0}"
         };
-    }
-
-    public void Clear()
-    {
-        _value = 0;
     }
 
     public void Report(double value)

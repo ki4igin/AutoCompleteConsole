@@ -1,6 +1,6 @@
 ﻿using System.Text;
 using MyConsole;
-using MyConsole.InputProvider;
+using MyConsole.StringProvider;
 
 MainConsole mc = new();
 
@@ -15,9 +15,10 @@ MainConsole mc = new();
 // }
 
 
-Selector selector = mc.Create<Selector, Selector.Color>(new());
-
+Selector selector = mc.CreateSelector(new());
 Request request = mc.CreateRequest(new());
+ProgressBar testInput = mc.CreateProgressBar();
+ProgressBar testInput2 = mc.CreateProgressBar();
 
 // IDisposable testStatus = mc.CreateStatus(testInput);
 
@@ -36,8 +37,8 @@ Task.Run(() =>
         string str = $"{cnt++ % 1000}";
         if (cnt % 16 == 0)
         {
-            // testInput.Report(cnt / 1000.0);
-            // testInput2.Report(cnt / 100.0);
+            testInput.Report(cnt / 1000.0);
+            testInput2.Report(cnt / 100.0);
             mc.Write(str);
         }
         else

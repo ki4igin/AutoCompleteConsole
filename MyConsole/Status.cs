@@ -1,5 +1,4 @@
-﻿using System.Text;
-using MyConsole.InputProvider;
+﻿using MyConsole.StringProvider;
 
 namespace MyConsole;
 
@@ -20,10 +19,10 @@ internal class Status
         Text = "";
     }
 
-    public void AddInput<T>(IInputProvider<T> input) where T : IColors
+    public void AddInput(IStringProvider @string)
     {
-        input.Updated = Change;
-        input.Completed = _ => { Clear(); };
+        @string.Updated = Change;
+        @string.Completed = _ => { Clear(); };
     }
 
     public string GetUpdateNewLineString() =>

@@ -1,8 +1,8 @@
 ﻿using System.Text;
 
-namespace MyConsole.InputProvider;
+namespace MyConsole.StringProvider;
 
-internal class AutoCompleteInput : IInputProvider
+internal class AutoCompleteString : IStringProvider
 {
     public record Color(EscColor Text, EscColor Cursor)
     {
@@ -18,11 +18,11 @@ internal class AutoCompleteInput : IInputProvider
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
 
-    internal AutoCompleteInput(IEnumerable<string> keyWords) : this(keyWords, new())
+    internal AutoCompleteString(IEnumerable<string> keyWords) : this(keyWords, new())
     {
     }
 
-    internal AutoCompleteInput(IEnumerable<string> keyWords, Color color)
+    internal AutoCompleteString(IEnumerable<string> keyWords, Color color)
     {
         _history = new();
         _keyWords = new(keyWords);

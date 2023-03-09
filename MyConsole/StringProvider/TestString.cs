@@ -1,14 +1,14 @@
 ﻿using System.Text;
 
-namespace MyConsole.InputProvider;
+namespace MyConsole.StringProvider;
 
-public class TestInput : IInputProvider
+public class TestString : IStringProvider
 {
     private readonly StringBuilder _text;
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
-    internal TestInput()
+    internal TestString()
     {
         _text = new("");
     }
