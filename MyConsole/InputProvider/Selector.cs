@@ -2,7 +2,7 @@
 
 namespace MyConsole.InputProvider;
 
-public class Selector : IInputProvider
+public class Selector : IInputProvider<Selector.Color>
 {
     public record Context(string Title, string SubTitle, string[] Items, string Comment)
     {
@@ -15,16 +15,16 @@ public class Selector : IInputProvider
         }
     }
 
-    public record Color(EscColor Title, EscColor SubTitle, EscColor Items, EscColor Select, EscColor Comment)
+    public record Color(EscColor Title, EscColor SubTitle, EscColor Items, EscColor Select, EscColor Comment) : IColors
     {
-        internal Color() : this(EscColor.Reset, EscColor.Reset, EscColor.Reset, EscColor.Reverse, EscColor.Reset)
+        public Color() : this(EscColor.Reset, EscColor.Reset, EscColor.Reset, EscColor.Reverse, EscColor.Reset)
         {
         }
     }
 
     private const int StartListNumber = 1;
     private Context _context;
-    private readonly Color _color;
+    private Color _color;
 
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
@@ -33,10 +33,15 @@ public class Selector : IInputProvider
     {
     }
 
-    public Selector(Color color)
+    internal Selector(Color color)
     {
         _color = color;
         _context = new();
+    }
+
+    public void SetColors(Color colors)
+    {
+        _color = colors;
     }
 
     public string Run(Context context, int defaultSelectPosition = 1)

@@ -86,12 +86,30 @@ internal class Writer
         return isNewLine;
     }
 
-    public Status CreateStatus(int position)
+    public Status CreateStatus()
     {
-        Status status = new(position);
+        foreach (var s in _statuses)
+        {
+            s.Position++;
+        }
+        
+        Status status = new(2);
         _statuses.Add(status);
         status.Changed = WriteDown; 
         return status;
+    }
+
+    public void DeleteStatus(Status status)
+    {
+        foreach (var s in _statuses)
+        {
+            if (s.Position > status.Position)
+            {
+                s.Position--;
+            }
+        }
+
+        _statuses.Remove(status);
     }
 
     public void Clear()

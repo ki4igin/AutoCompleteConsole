@@ -9,7 +9,7 @@ internal class Status
     private string _clearString;
 
     private string Text { get; set; }
-    public int Position { get; }
+    public int Position { get; set; }
 
     public Action<string, int, int>? Changed { get; set; }
 
@@ -20,7 +20,7 @@ internal class Status
         Text = "";
     }
 
-    public void AddInput(IInputProvider input)
+    public void AddInput<T>(IInputProvider<T> input) where T : IColors
     {
         input.Updated = Change;
         input.Completed = _ => { Clear(); };
@@ -35,27 +35,12 @@ internal class Status
     private void Change(string str)
     {
         Text = str;
-        string clearString = GetClearString(_height);
+        string clearString = Esc.GetClearString(_height);
         _height = str.Split('\n').Length;
         Changed?.Invoke(clearString + str, Position, _height);
-        _clearString = GetClearString(_height);
+        _clearString = Esc.GetClearString(_height);
     }
 
     private void Clear() =>
         Change("");
-
-
-    private string GetClearString(int height)
-    {
-        StringBuilder sb = new(Esc.ClearCurrentLine);
-        for (int i = 0; i < height - 1; i++)
-        {
-            sb.Append(Environment.NewLine + Esc.ClearCurrentLine);
-        }
-
-        if (height > 1)
-            sb.Append(Esc.CursorUp(height - 1));
-
-        return sb.ToString();
-    }
 }

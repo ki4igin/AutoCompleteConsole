@@ -1,4 +1,6 @@
-﻿namespace MyConsole;
+﻿using System.Text;
+
+namespace MyConsole;
 
 public enum EscColor
 {
@@ -93,4 +95,18 @@ internal static class Esc
         new string('\n', offset) +
         str +
         CursorUp(offset + height - 1);
+    
+    public static string GetClearString(int height)
+    {
+        StringBuilder sb = new(ClearCurrentLine);
+        for (int i = 0; i < height - 1; i++)
+        {
+            sb.Append(Environment.NewLine + ClearCurrentLine);
+        }
+
+        if (height > 1)
+            sb.Append(CursorUp(height - 1));
+
+        return sb.ToString();
+    }
 }

@@ -15,13 +15,11 @@ MainConsole mc = new();
 // }
 
 
-Selector selector = new();
-Request request = new Request();
+Selector selector = mc.Create<Selector, Selector.Color>(new());
 
-ProgressBar testInput = new ProgressBar();
+Request request = mc.CreateRequest(new());
+
 // IDisposable testStatus = mc.CreateStatus(testInput);
-mc.AddInputToStatus(request);
-mc.AddInputToStatus(selector);
 
 mc.WriteLine("Привет, мир!");
 
@@ -38,7 +36,8 @@ Task.Run(() =>
         string str = $"{cnt++ % 1000}";
         if (cnt % 16 == 0)
         {
-            testInput.Report(cnt / 1000.0);
+            // testInput.Report(cnt / 1000.0);
+            // testInput2.Report(cnt / 100.0);
             mc.Write(str);
         }
         else

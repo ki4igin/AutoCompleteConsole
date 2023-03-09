@@ -8,7 +8,7 @@ public class TestInput : IInputProvider
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
-    public TestInput()
+    internal TestInput()
     {
         _text = new("");
     }

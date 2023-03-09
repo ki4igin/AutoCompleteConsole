@@ -18,11 +18,11 @@ internal class AutoCompleteInput : IInputProvider
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
 
-    public AutoCompleteInput(IEnumerable<string> keyWords) : this(keyWords, new())
+    internal AutoCompleteInput(IEnumerable<string> keyWords) : this(keyWords, new())
     {
     }
 
-    public AutoCompleteInput(IEnumerable<string> keyWords, Color color)
+    internal AutoCompleteInput(IEnumerable<string> keyWords, Color color)
     {
         _history = new();
         _keyWords = new(keyWords);

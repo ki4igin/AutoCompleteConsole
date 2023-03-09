@@ -36,11 +36,11 @@ public class Request : IInputProvider
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
-    public Request() : this(new())
+    internal Request() : this(new())
     {
     }
 
-    public Request(Color color)
+    internal Request(Color color)
     {
         _color = color;
         _context = new();

@@ -1,4 +1,5 @@
-﻿using MyConsole.InputProvider;
+﻿using System.Runtime.InteropServices;
+using MyConsole.InputProvider;
 
 namespace MyConsole;
 
@@ -31,19 +32,45 @@ public class MainConsole
                 EscColor.BackgroundDarkMagenta
             ));
 
-        _rdStatus = _wr.CreateStatus(3);
+        _rdStatus = _wr.CreateStatus();
         _rdStatus.AddInput(_rd);
     }
 
-    public void AddInputToStatus(IInputProvider input) =>
-        _rdStatus.AddInput(input);
+    // public T Create<T, TC>(TC color) where T : class, IInputProvider<TC> where TC:IColorable
+    // {
+    //     T input = Activator.CreateInstance(typeof(T), color) as T;;
+    //     return input;
+    // }
 
-    // public IDisposable CreateStatus(IInputProvider input) =>
-    //     input switch
-    //     {
-    //         ProgressBar => _wr.CreateStatus(2),
-    //         _ => _wr.CreateStatus(3)
-    //     };
+    // public Selector Create() => Create(new());
+
+    public T Create<T, TC>(TC color) where T : IInputProvider<TC>, new() where TC : IColors
+    {
+        T input = new();
+        input.SetColors(color);
+        _rdStatus.AddInput(input);
+        return input;
+    }
+
+    // public Request Create() => Create(new());
+
+    public Request Create(Request.Color color)
+    {
+        Request input = new(color);
+        _rdStatus.AddInput(input);
+        return input;
+    }
+    //
+    // public ProgressBar CreateProgressBar()
+    // {
+    //     ProgressBar progressBar = new();
+    //     Status status = _wr.CreateStatus();
+    //     status.AddInput(progressBar);
+    //
+    //     progressBar.Completed = _ => _wr.DeleteStatus(status);
+    //
+    //     return progressBar;
+    // }
 
     public void Write(string str) => _wr.Write(str);
     public void Write(string str, EscColor color) => _wr.Write(str, color);

@@ -7,12 +7,10 @@ public class ProgressBar : IInputProvider, IProgress<double>
     private double _oldValue;
     private double _value;
 
-    public string ClearString => Esc.ClearCurrentLine;
-    public int Height => 1;
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
-    public ProgressBar()
+    internal ProgressBar()
     {
         _value = 0;
         _oldValue = 0;
@@ -51,5 +49,9 @@ public class ProgressBar : IInputProvider, IProgress<double>
             return;
         _oldValue = _value;
         Updated?.Invoke(GetContextString());
+        if (_value > 1 - Tolerance)
+        {
+            Completed?.Invoke("Done");
+        }
     }
 }
