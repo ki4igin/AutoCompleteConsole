@@ -1,4 +1,4 @@
-﻿namespace MyConsole.StringProvider;
+﻿namespace AutoCompleteConsole.StringProvider;
 
 public interface IStringProvider
 {

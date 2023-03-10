@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MyConsole.StringProvider;
+namespace AutoCompleteConsole.StringProvider;
 
 public class Selector : IStringProvider
 {
@@ -35,10 +35,6 @@ public class Selector : IStringProvider
 
     public Action<string>? Updated { get; set; }
     public Action<string>? Completed { get; set; }
-
-    internal Selector() : this(new())
-    {
-    }
 
     internal Selector(Color color)
     {

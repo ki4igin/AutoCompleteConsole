@@ -1,6 +1,7 @@
-﻿namespace MyConsole.StringProvider;
+﻿namespace AutoCompleteConsole.StringProvider;
 
-public class ProgressBar : IStringProvider, IProgress<double>
+public class
+    ProgressBar : IStringProvider, IProgress<double>
 {
     private const double Tolerance = 0.001;
 

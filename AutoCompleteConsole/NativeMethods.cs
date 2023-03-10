@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace MyConsole;
+namespace AutoCompleteConsole;
 
 internal static class NativeTerminal
 {
@@ -9,7 +9,7 @@ internal static class NativeTerminal
     {
         // EnableProcessedOutput = 0x01,
         // EnableWrapAtEolOutput = 0x02,
-        EnableVirtualTerminalProcessing = 0x04,
+        EnableVirtualTerminalProcessing = 0x04
     }
     
     private const int StdOutHandle = -11;
@@ -26,7 +26,7 @@ internal static class NativeTerminal
         CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
     private static extern int SetConsoleMode(int hConsoleHandle, int dwMode);
 
-    public static  int EnableVirtualTerminalProcessing()
+    public static int EnableVirtualTerminalProcessing()
     {
         OperatingSystem system = Environment.OSVersion;
 

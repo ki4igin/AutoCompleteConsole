@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using MyConsole;
-using MyConsole.StringProvider;
+using AutoCompleteConsole;
+using AutoCompleteConsole.StringProvider;
 
-MainConsole mc = new();
+AutoCompleteConsole.AutoCompleteConsole mc = new();
 
 // Console.Write(Esc.CursorHide);
 
@@ -17,6 +17,8 @@ MainConsole mc = new();
 
 Selector selector = mc.CreateSelector(new());
 Request request = mc.CreateRequest(new());
+Status status = mc.CreateStatus();
+status.Change(new('-', 10));
 ProgressBar testInput = mc.CreateProgressBar();
 ProgressBar testInput2 = mc.CreateProgressBar();
 
@@ -40,11 +42,12 @@ Task.Run(() =>
             testInput.Report(cnt / 1000.0);
             testInput2.Report(cnt / 100.0);
             mc.Write(str);
+            status.Change("");
         }
         else
             mc.Write(str, EscColor.ForegroundRed);
 
-        Thread.Sleep(100);
+        Thread.Sleep(1);
     }
 });
 

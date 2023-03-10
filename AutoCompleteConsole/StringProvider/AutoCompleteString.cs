@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MyConsole.StringProvider;
+namespace AutoCompleteConsole.StringProvider;
 
 internal class AutoCompleteString : IStringProvider
 {
@@ -58,6 +58,7 @@ internal class AutoCompleteString : IStringProvider
                 tabCount = 0;
             }
 
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (keyInfo.Key)
             {
                 case ConsoleKey.Backspace:
@@ -211,7 +212,7 @@ internal class AutoCompleteString : IStringProvider
             sb.Append(word.PadRight(alignment));
             if (++cnt == keyWords.Count)
                 break;
-            if ((cnt % cntWordInLine) == 0)
+            if (cnt % cntWordInLine == 0)
                 sb.Append(Environment.NewLine);
         }
 

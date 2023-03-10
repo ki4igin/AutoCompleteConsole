@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MyConsole.StringProvider;
+namespace AutoCompleteConsole.StringProvider;
 
 public class Request : IStringProvider
 {
@@ -11,7 +11,7 @@ public class Request : IStringProvider
         }
 
         internal Context() : this("")
-        { 
+        {
         }
     }
 
@@ -35,10 +35,6 @@ public class Request : IStringProvider
 
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
-
-    internal Request() : this(new())
-    {
-    }
 
     internal Request(Color color)
     {

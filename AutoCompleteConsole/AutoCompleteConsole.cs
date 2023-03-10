@@ -1,16 +1,15 @@
-﻿using System.Runtime.InteropServices;
-using MyConsole.StringProvider;
+﻿using AutoCompleteConsole.StringProvider;
 
-namespace MyConsole;
+namespace AutoCompleteConsole;
 
-public class MainConsole
+public class AutoCompleteConsole
 {
     private readonly AutoCompleteString _rd;
     private readonly Writer _wr;
     private readonly Dictionary<string, Action> _commands;
     private readonly Status _rdStatus;
 
-    public MainConsole()
+    public AutoCompleteConsole()
     {
         NativeTerminal.EnableVirtualTerminalProcessing();
 
@@ -33,32 +32,40 @@ public class MainConsole
             ));
 
         _rdStatus = _wr.CreateStatus();
-        _rdStatus.AddInput(_rd);
+        _rdStatus.Add(_rd);
     }
+
+    public void AddKeyWords(string[] keyWords) =>
+        _rd.AddKeyWords(keyWords);
 
     public Selector CreateSelector(Selector.Color color)
     {
         Selector input = new(color);
-        _rdStatus.AddInput(input);
+        _rdStatus.Add(input);
         return input;
     }
 
     public Request CreateRequest(Request.Color color)
     {
         Request input = new(color);
-        _rdStatus.AddInput(input);
+        _rdStatus.Add(input);
         return input;
     }
-    
+
     public ProgressBar CreateProgressBar()
     {
         ProgressBar progressBar = new();
         Status status = _wr.CreateStatus();
-        status.AddInput(progressBar);
-    
+        status.Add(progressBar);
+
         progressBar.Completed = _ => _wr.DeleteStatus(status);
-    
+
         return progressBar;
+    }
+
+    public Status CreateStatus()
+    {
+        return _wr.CreateStatus();
     }
 
     public void Write(string str) => _wr.Write(str);

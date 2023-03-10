@@ -1,14 +1,14 @@
 ﻿using System.Text;
 
-namespace MyConsole.StringProvider;
+namespace AutoCompleteConsole.StringProvider;
 
-public class TestString : IStringProvider
+public class TestStringProvider : IStringProvider
 {
     private readonly StringBuilder _text;
     public Action<string>? Completed { get; set; }
     public Action<string>? Updated { get; set; }
 
-    internal TestString()
+    internal TestStringProvider()
     {
         _text = new("");
     }
@@ -18,5 +18,4 @@ public class TestString : IStringProvider
         _text.Append(str);
         Updated?.Invoke(_text.ToString());
     }
-    
 }

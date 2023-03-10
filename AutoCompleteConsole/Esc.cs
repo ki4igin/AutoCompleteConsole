@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace MyConsole;
+namespace AutoCompleteConsole;
 
 public enum EscColor
 {
@@ -109,4 +109,7 @@ internal static class Esc
 
         return sb.ToString();
     }
+
+    public static int GetHeightString(string str) =>
+        str.Split('\n').Length;
 }

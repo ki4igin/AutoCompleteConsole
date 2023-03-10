@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace MyConsole;
+﻿namespace AutoCompleteConsole;
 
 internal class Writer
 {
@@ -8,17 +6,18 @@ internal class Writer
     private (int left, int top) _cursorPosition;
 
     private readonly List<Status> _statuses;
+    private string _statusText = "";
 
-    public Writer()
+    internal Writer()
     {
         _statuses = new();
         _cursorPosition = (0, 0);
     }
 
-    public void Write(string str) =>
+    internal void Write(string str) =>
         Write(str, EscColor.Reset);
 
-    public void Write(string str, EscColor color)
+    internal void Write(string str, EscColor color)
     {
         lock (_lockObj)
         {
@@ -34,19 +33,36 @@ internal class Writer
         }
     }
 
-    public void WriteLine(string str) =>
+    internal void WriteLine(string str) =>
         Write(str + Environment.NewLine);
 
-    public void WriteLine(string str, EscColor color) =>
+    internal void WriteLine(string str, EscColor color) =>
         Write(str + Environment.NewLine, color);
 
-    public void WriteDown(string str, int offset)
+    internal Status CreateStatus()
     {
-        int height = str.Split('\n').Length;
-        WriteDown(str, offset, height);
+        Status status = new();
+        _statuses.Add(status);
+        status.Changed = OnStatusChanged;
+        return status;
     }
 
-    public void WriteDown(string str, int offset, int height)
+    internal void DeleteStatus(Status status)
+    {
+        _statuses.Remove(status);
+    }
+
+    internal void Clear()
+    {
+        lock (_lockObj)
+        {
+            Console.Write(Esc.Clear);
+            Console.Write(Esc.CursorPosition(0, 0));
+            _cursorPosition = (0, 0);
+        }
+    }
+
+    private void WriteDown(string str, int offset, int height)
     {
         lock (_lockObj)
         {
@@ -86,51 +102,27 @@ internal class Writer
         return isNewLine;
     }
 
-    public Status CreateStatus()
+    private void OnStatusChanged(string str)
     {
-        foreach (var s in _statuses)
-        {
-            s.Position++;
-        }
-        
-        Status status = new(2);
-        _statuses.Add(status);
-        status.Changed = WriteDown; 
-        return status;
+        string clearString = Esc.GetClearString(Esc.GetHeightString(_statusText));
+
+        string text = string.Join(
+            Environment.NewLine,
+            _statuses
+                .Where(status => status.Text != "")
+                .Reverse()
+                .Select(status => status.Text));
+
+        _statusText = text;
+        WriteDown(clearString + text, 2, Esc.GetHeightString(text));
     }
 
-    public void DeleteStatus(Status status)
-    {
-        foreach (var s in _statuses)
-        {
-            if (s.Position > status.Position)
-            {
-                s.Position--;
-            }
-        }
-
-        _statuses.Remove(status);
-    }
-
-    public void Clear()
-    {
-        lock (_lockObj)
-        {
-            Console.Write(Esc.Clear);
-            Console.Write(Esc.CursorPosition(0, 0));
-            _cursorPosition = (0, 0);
-        }
-    }
 
     private string GetNewLineSuffixString()
     {
-        StringBuilder sb = new();
-        foreach (var status in _statuses.OrderByDescending(s => s.Position))
-        {
-            string str = status.GetUpdateNewLineString();
-            sb.Append(str);
-        }
+        int height = Esc.GetHeightString(_statusText);
+        string clearString = Esc.GetClearString(height);
 
-        return sb.ToString();
+        return Esc.GetDownString(clearString + Environment.NewLine + _statusText, 1, height + 1);
     }
 }
