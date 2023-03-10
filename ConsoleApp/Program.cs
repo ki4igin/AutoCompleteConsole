@@ -47,7 +47,7 @@ Task.Run(() =>
         else
             mc.Write(str, EscColor.ForegroundRed);
 
-        Thread.Sleep(1);
+        Thread.Sleep(10);
     }
 });
 
@@ -56,6 +56,7 @@ Task.Run(() =>
 while (true)
 {
     string cmd = mc.ReadLine();
+    mc.WriteLine(Environment.NewLine+cmd, EscColor.ForegroundDarkYellow);
     if (cmd == "clr")
     {
         cnt = 0;

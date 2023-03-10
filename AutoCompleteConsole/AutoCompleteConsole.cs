@@ -58,15 +58,13 @@ public class AutoCompleteConsole
         Status status = _wr.CreateStatus();
         status.Add(progressBar);
 
-        progressBar.Completed = _ => _wr.DeleteStatus(status);
+        // progressBar.Completed = _ => _wr.DeleteStatus(status);
 
         return progressBar;
     }
 
-    public Status CreateStatus()
-    {
-        return _wr.CreateStatus();
-    }
+    public Status CreateStatus() =>
+        _wr.CreateStatus();
 
     public void Write(string str) => _wr.Write(str);
     public void Write(string str, EscColor color) => _wr.Write(str, color);
@@ -81,7 +79,6 @@ public class AutoCompleteConsole
 
         return cmd;
     }
-
 
     private static void Quit() =>
         Environment.Exit(0);
