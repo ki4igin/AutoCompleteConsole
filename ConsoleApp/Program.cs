@@ -1,5 +1,4 @@
 ﻿using AutoCompleteConsole;
-using Acc = AutoCompleteConsole.AutoCompleteConsole;
 using AutoCompleteConsole.StringProvider;
 
 // Console.Write(Esc.CursorHide);

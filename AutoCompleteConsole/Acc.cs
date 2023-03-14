@@ -2,14 +2,14 @@
 
 namespace AutoCompleteConsole;
 
-public static class AutoCompleteConsole
+public static class Acc
 {
     private static readonly AutoCompleteString _rd;
     private static readonly Writer _wr;
     private static readonly Dictionary<string, Action> _commands;
     private static readonly Status _rdStatus;
 
-    static AutoCompleteConsole()
+    static Acc()
     {
         NativeTerminal.EnableVirtualTerminalProcessing();
 
