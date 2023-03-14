@@ -1,8 +1,6 @@
-﻿using System.Text;
-using AutoCompleteConsole;
+﻿using AutoCompleteConsole;
+using Acc = AutoCompleteConsole.AutoCompleteConsole;
 using AutoCompleteConsole.StringProvider;
-
-AutoCompleteConsole.AutoCompleteConsole mc = new();
 
 // Console.Write(Esc.CursorHide);
 
@@ -15,16 +13,16 @@ AutoCompleteConsole.AutoCompleteConsole mc = new();
 // }
 
 
-Selector selector = mc.CreateSelector(new());
-Request request = mc.CreateRequest(new());
-Status status = mc.CreateStatus();
+Selector selector = Acc.CreateSelector(new());
+Request request = Acc.CreateRequest(new());
+Status status = Acc.CreateStatus();
 status.Change(new('-', 10));
-ProgressBar testInput = mc.CreateProgressBar();
-ProgressBar testInput2 = mc.CreateProgressBar();
+ProgressBar testInput = Acc.CreateProgressBar();
+ProgressBar testInput2 = Acc.CreateProgressBar();
 
 // IDisposable testStatus = mc.CreateStatus(testInput);
 
-mc.WriteLine("Привет, мир!");
+Acc.WriteLine("Привет, мир!");
 
 // testInput.Write(new string('=', 40));
 // selector.Updated = s => selStatus.Write(s);
@@ -41,11 +39,11 @@ Task.Run(() =>
         {
             testInput.Report(cnt / 1000.0);
             testInput2.Report(cnt / 100.0);
-            mc.Write(str);
+            Acc.Write(str);
             status.Change("");
         }
         else
-            mc.Write(str, EscColor.ForegroundRed);
+            Acc.Write(str, EscColor.ForegroundRed);
 
         Thread.Sleep(10);
     }
@@ -55,8 +53,8 @@ Task.Run(() =>
 
 while (true)
 {
-    string cmd = mc.ReadLine();
-    mc.WriteLine(Environment.NewLine+cmd, EscColor.ForegroundDarkYellow);
+    string cmd = Acc.ReadLine();
+    Acc.WriteLine(Environment.NewLine+cmd, EscColor.ForegroundDarkYellow);
     if (cmd == "clr")
     {
         cnt = 0;

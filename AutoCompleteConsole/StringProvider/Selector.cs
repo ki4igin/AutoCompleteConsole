@@ -27,6 +27,10 @@ public class Selector : IStringProvider
             this(EscColor.Reset, EscColor.Reset, EscColor.Reset, EscColor.Reverse, EscColor.Reset)
         {
         }
+        public Color(EscColor title, EscColor select) :
+            this(title, EscColor.Reset, EscColor.Reset, select, EscColor.Reset)
+        {
+        }
     }
 
     private const int StartListNumber = 1;

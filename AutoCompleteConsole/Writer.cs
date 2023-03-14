@@ -33,6 +33,8 @@ internal class Writer
         }
     }
 
+    internal void WriteLine() =>
+        Write(Environment.NewLine);
     internal void WriteLine(string str) =>
         Write(str + Environment.NewLine);
 

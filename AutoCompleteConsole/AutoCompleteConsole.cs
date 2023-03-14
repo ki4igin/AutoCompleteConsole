@@ -2,18 +2,19 @@
 
 namespace AutoCompleteConsole;
 
-public class AutoCompleteConsole
+public static class AutoCompleteConsole
 {
-    private readonly AutoCompleteString _rd;
-    private readonly Writer _wr;
-    private readonly Dictionary<string, Action> _commands;
-    private readonly Status _rdStatus;
+    private static readonly AutoCompleteString _rd;
+    private static readonly Writer _wr;
+    private static readonly Dictionary<string, Action> _commands;
+    private static readonly Status _rdStatus;
 
-    public AutoCompleteConsole()
+    static AutoCompleteConsole()
     {
         NativeTerminal.EnableVirtualTerminalProcessing();
 
         Console.Write(Esc.ScreenBufferAlternative);
+        Console.Write(Esc.CursorHide);
         Console.Write(Esc.CursorPosition(0, 0));
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Console.Write(Esc.ScreenBufferMain);
         Console.CancelKeyPress += (_, _) => Console.Write(Esc.ScreenBufferMain);
@@ -35,24 +36,24 @@ public class AutoCompleteConsole
         _rdStatus.Add(_rd);
     }
 
-    public void AddKeyWords(string[] keyWords) =>
+    public static void AddKeyWords(string[] keyWords) =>
         _rd.AddKeyWords(keyWords);
 
-    public Selector CreateSelector(Selector.Color color)
+    public static Selector CreateSelector(Selector.Color color)
     {
         Selector input = new(color);
         _rdStatus.Add(input);
         return input;
     }
 
-    public Request CreateRequest(Request.Color color)
+    public static Request CreateRequest(Request.Color color)
     {
         Request input = new(color);
         _rdStatus.Add(input);
         return input;
     }
 
-    public ProgressBar CreateProgressBar()
+    public static ProgressBar CreateProgressBar()
     {
         ProgressBar progressBar = new();
         Status status = _wr.CreateStatus();
@@ -63,15 +64,16 @@ public class AutoCompleteConsole
         return progressBar;
     }
 
-    public Status CreateStatus() =>
+    public static Status CreateStatus() =>
         _wr.CreateStatus();
 
-    public void Write(string str) => _wr.Write(str);
-    public void Write(string str, EscColor color) => _wr.Write(str, color);
-    public void WriteLine(string str) => _wr.WriteLine(str);
-    public void WriteLine(string str, EscColor color) => _wr.WriteLine(str, color);
+    public static void Write(string str) => _wr.Write(str);
+    public static void Write(string str, EscColor color) => _wr.Write(str, color);
+    public static void WriteLine() => _wr.WriteLine();
+    public static void WriteLine(string str) => _wr.WriteLine(str);
+    public static void WriteLine(string str, EscColor color) => _wr.WriteLine(str, color);
 
-    public string ReadLine()
+    public static string ReadLine()
     {
         string cmd = _rd.ReadLine();
         if (_commands.TryGetValue(cmd, out var action))
@@ -83,6 +85,6 @@ public class AutoCompleteConsole
     private static void Quit() =>
         Environment.Exit(0);
 
-    private void Clear() =>
+    private static void Clear() =>
         _wr.Clear();
 }
