@@ -85,6 +85,6 @@ public static class Acc
     private static void Quit() =>
         Environment.Exit(0);
 
-    private static void Clear() =>
+    public static void Clear() =>
         _wr.Clear();
 }

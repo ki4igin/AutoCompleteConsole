@@ -4,9 +4,9 @@ namespace AutoCompleteConsole.StringProvider;
 
 public class Request : IStringProvider
 {
-    public record Context(string Title, string SubTitle = "", string ErrorMessage = "", string Comment = "")
+    public record Context(string Title, string SubTitle, string ErrorMessage, string Comment)
     {
-        public Context(string title, string errorMessage) : this(title, "", errorMessage)
+        public Context(string title, string errorMessage = "") : this(title, "", errorMessage, "")
         {
         }
 
@@ -43,6 +43,9 @@ public class Request : IStringProvider
         _maxCountAttempts = 3;
     }
 
+    public string ReadLine(Context context, string defaultValue) =>
+        ReadLine(context, _ => true, defaultValue);
+
     public string ReadLine(Context context, Predicate<string> validator, string defaultValue)
     {
         _context = context;
@@ -54,6 +57,7 @@ public class Request : IStringProvider
         while (true)
         {
             ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+
 
             if (keyInfo.Key == ConsoleKey.Enter)
             {
@@ -114,6 +118,7 @@ public class Request : IStringProvider
                     break;
                 default:
                     if (keyInfo.Key is
+                        0 or
                         >= ConsoleKey.D0 and <= ConsoleKey.Z or
                         >= ConsoleKey.NumPad0 and <= ConsoleKey.Divide or
                         >= ConsoleKey.Oem1 and <= ConsoleKey.Oem102 or
@@ -148,10 +153,10 @@ public class Request : IStringProvider
         sb.Append(title.Color(_color.Title));
         if (subTitle != "")
             sb.Append(Environment.NewLine + subTitle.Color(_color.SubTitle));
+        sb.Append(Environment.NewLine + strPrefix + ch.Color(_color.Cursor) + strSuffix);
         if (isValid is false)
             sb.Append(Environment.NewLine +
                       $"{errorMessage} [{_maxCountAttempts}]".Color(_color.ErrorMessage));
-        sb.Append(Environment.NewLine + strPrefix + ch.Color(_color.Cursor) + strSuffix);
         if (comment != "")
             sb.Append(Environment.NewLine + comment.Color(_color.Comment));
 

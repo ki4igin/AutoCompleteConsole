@@ -46,10 +46,10 @@ public class Selector : IStringProvider
         _context = new();
     }
 
-    public string Run(Context context, int defaultSelectPosition = 1)
+    public string Run(Context context, int defaultSelectPosition = 0)
     {
         _context = context;
-        int startSelectPosition = defaultSelectPosition - 1;
+        int startSelectPosition = defaultSelectPosition;
 
         Updated?.Invoke(GetContextString(startSelectPosition));
         int itemsLength = _context.Items.Length;
