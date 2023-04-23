@@ -134,9 +134,11 @@ internal class AutoCompleteString : IStringProvider
                             break;
                         default:
                         {
-                            string commonPrefix = words
-                                .Aggregate((s1, s2) => string.Concat(s1.Zip(s2, (c1, c2) => c1 == c2 ? c1 : default)))
-                                .TrimEnd('\0');
+                            string commonPrefix = words.Aggregate((prefix, next) =>
+                            {
+                                int length = Math.Min(prefix.Length, next.Length);
+                                return new(prefix.TakeWhile((c, i) => i < length && c == next[i]).ToArray());
+                            });
                             string all = AllKeyWordsToString(commonPrefix);
 
                             sb.Clear();
@@ -209,9 +211,14 @@ internal class AutoCompleteString : IStringProvider
         int cnt = 0;
         foreach (string word in keyWords)
         {
-            sb.Append(word.PadRight(alignment));
             if (++cnt == keyWords.Count)
+            {
+                sb.Append(word);
                 break;
+            }
+
+            sb.Append(word.PadRight(alignment));
+
             if (cnt % cntWordInLine == 0)
                 sb.Append(Environment.NewLine);
         }
