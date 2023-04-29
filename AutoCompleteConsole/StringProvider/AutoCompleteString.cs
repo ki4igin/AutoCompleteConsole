@@ -143,7 +143,7 @@ internal class AutoCompleteString : IStringProvider
 
                             sb.Clear();
                             sb.Append(commonPrefix);
-                            if ((tabCount++ & 0x01) == 0)
+                            if ((tabCount++ & 0x01) != 0)
                             {
                                 Updated?.Invoke(GetContextString(all, all.Length));
                                 cursorPosition = sb.Length;
