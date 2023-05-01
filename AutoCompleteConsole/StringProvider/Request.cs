@@ -4,16 +4,7 @@ namespace AutoCompleteConsole.StringProvider;
 
 public class Request : IStringProvider
 {
-    public record Context(string Title, string SubTitle, string ErrorMessage, string Comment)
-    {
-        public Context(string title, string errorMessage = "") : this(title, "", errorMessage, "")
-        {
-        }
-
-        internal Context() : this("")
-        {
-        }
-    }
+    public record Context(string Title = "", string SubTitle = "", string Comment = "");
 
     public record Color(EscColor Title, EscColor SubTitle, EscColor ErrorMessage, EscColor Cursor, EscColor Comment)
     {
@@ -28,8 +19,8 @@ public class Request : IStringProvider
         }
     }
 
-    private int _maxCountAttempts;
-
+    private const int MaxCountAttempts = 3;
+    private int _countAttempts;
     private Context _context;
     private readonly Color _color;
 
@@ -40,15 +31,16 @@ public class Request : IStringProvider
     {
         _color = color;
         _context = new();
-        _maxCountAttempts = 3;
+        _countAttempts = MaxCountAttempts;
     }
 
     public string ReadLine(Context context, string defaultValue) =>
-        ReadLine(context, _ => true, defaultValue);
+        ReadLine(context, _ => "", defaultValue);
 
-    public string ReadLine(Context context, Predicate<string> validator, string defaultValue)
+    public string ReadLine(Context context, Func<string, string> validator, string defaultValue)
     {
         _context = context;
+        _countAttempts = MaxCountAttempts;
 
         int cursorPosition = defaultValue.Length;
         StringBuilder sb = new(defaultValue);
@@ -61,10 +53,10 @@ public class Request : IStringProvider
 
             if (keyInfo.Key == ConsoleKey.Enter)
             {
-                if (validator(sb.ToString()))
+                if (validator(sb.ToString()) == "")
                     break;
 
-                if (--_maxCountAttempts == 0)
+                if (--_countAttempts == 0)
                 {
                     sb.Clear();
                     sb.Append(defaultValue);
@@ -139,9 +131,9 @@ public class Request : IStringProvider
         return sb.ToString();
     }
 
-    private string GetContextString(string s, int i, bool isValid)
+    private string GetContextString(string s, int i, string error)
     {
-        (string title, string subTitle, string errorMessage, string comment) = _context;
+        (string title, string subTitle, string comment) = _context;
 
         s += " ";
         string strPrefix = s[..i];
@@ -154,9 +146,9 @@ public class Request : IStringProvider
         if (subTitle != "")
             sb.Append(Environment.NewLine + subTitle.Color(_color.SubTitle));
         sb.Append(Environment.NewLine + strPrefix + ch.Color(_color.Cursor) + strSuffix);
-        if (isValid is false)
+        if (error != "")
             sb.Append(Environment.NewLine +
-                      $"{errorMessage} [{_maxCountAttempts}]".Color(_color.ErrorMessage));
+                      $"{error} [{_countAttempts}]".Color(_color.ErrorMessage));
         if (comment != "")
             sb.Append(Environment.NewLine + comment.Color(_color.Comment));
 

@@ -25,6 +25,6 @@ public class Status
         @string.Completed = _ => { Clear(); };
     }
 
-    private void Clear() =>
+    public void Clear() =>
         Change("");
 }

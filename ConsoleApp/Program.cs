@@ -20,8 +20,9 @@ ProgressBar testInput = Acc.CreateProgressBar();
 ProgressBar testInput2 = Acc.CreateProgressBar();
 
 // IDisposable testStatus = mc.CreateStatus(testInput);
-
+Acc.EnableScreenBufferAlternative();
 Acc.WriteLine("Привет, мир!");
+// Console.Write("\u001b[2;15r");
 
 // testInput.Write(new string('=', 40));
 // selector.Updated = s => selStatus.Write(s);
@@ -33,18 +34,18 @@ Task.Run(() =>
 {
     while (true)
     {
-        string str = $"{cnt++ % 1000}";
+        string str = $"{cnt++ % 2}";
         if (cnt % 16 == 0)
         {
             testInput.Report(cnt / 1000.0);
             testInput2.Report(cnt / 100.0);
             Acc.Write(str);
-            status.Change("");
+            // status.Change("");
         }
         else
             Acc.Write(str, EscColor.ForegroundRed);
 
-        Thread.Sleep(10);
+        Thread.Sleep(100);
     }
 });
 
@@ -57,6 +58,14 @@ while (true)
     if (cmd == "clr")
     {
         cnt = 0;
+    }
+    if (cmd == "movup")
+    {
+        Console.Write("\u001b[5S");
+    }
+    if (cmd == "movdown")
+    {
+        Console.Write("\u001b[5T");
     }
 
     if (cmd == "sel")
@@ -75,11 +84,7 @@ while (true)
     if (cmd == "req")
     {
         // rdrStatus.Redirect(selector);
-        request.ReadLine(
-            new("Whats?", "Error"),
-            s => int.TryParse(s, out int _),
-            "55"
-        );
+       
         // rdrStatus.Redirect(rd);
     }
 

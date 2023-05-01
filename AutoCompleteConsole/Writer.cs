@@ -22,19 +22,59 @@ internal class Writer
         lock (_lockObj)
         {
             string strSuffix = "";
-            if (IsNewLine(str))
+            // const string pattern = @"\u001b\[\d+m|\r";
+            // string[] lines = Regex
+            //         .Replace(str, pattern, "")
+            //         .Split("\n");
+            string[] lines = str.Split("\n");
+            string lastLine = lines.Last().Replace("\r", "");
+            (int newLeft, int offsetTop) = (_cursorPosition.left, 0);
+            offsetTop += lines.Length - 1;
+            if (lines.Length > 1)
+                newLeft = 0;
+
+            newLeft += lastLine.Length;
+            if (newLeft > Console.WindowWidth)
+            {
+                offsetTop += newLeft / Console.WindowWidth;
+                newLeft %= Console.WindowWidth;
+            }
+
+            if (offsetTop > 0)
             {
                 strSuffix =
                     GetNewLineSuffixString() +
-                    Esc.CursorPositionLeft(_cursorPosition.left + 1);
+                    Esc.CursorPositionLeft(newLeft + 1);
             }
 
-            Console.Write(str.Color(color) + strSuffix);
+            Console.Write(str.Replace("\n", $"\n{Esc.ClearCurrentLine}").Color(color) + strSuffix);
+
+            _cursorPosition = (newLeft, _cursorPosition.top + offsetTop);
         }
     }
 
+    internal void WriteFirst(string str, EscColor color)
+    {
+        if (_cursorPosition.left != 0)
+            str = Environment.NewLine + str;
+        Write(str, color);
+    }
+
+    internal void WriteFirst(string str) =>
+        WriteFirst(str, EscColor.Reset);
+
+    internal void WriteFirstLine() =>
+        WriteFirst(Environment.NewLine);
+
+    internal void WriteFirstLine(string str) =>
+        WriteFirst(str + Environment.NewLine);
+
+    internal void WriteFirstLine(string str, EscColor color) =>
+        WriteFirst(str + Environment.NewLine, color);
+
     internal void WriteLine() =>
         Write(Environment.NewLine);
+
     internal void WriteLine(string str) =>
         Write(str + Environment.NewLine);
 
@@ -75,35 +115,6 @@ internal class Writer
         }
     }
 
-    private bool IsNewLine(string str)
-    {
-        bool isNewLine = false;
-        // const string pattern = @"\u001b\[\d+m|\r";
-        // string[] lines = Regex
-        //         .Replace(str, pattern, "")
-        //         .Split("\n");
-        string[] lines = str
-            .Replace("\r", "")
-            .Split("\n");
-        string lastLine = lines.Last();
-        if (lines.Length > 1)
-        {
-            _cursorPosition.top += lines.Length - 1;
-            _cursorPosition.left = 0;
-            isNewLine = true;
-        }
-
-        _cursorPosition.left += lastLine.Length;
-        if (_cursorPosition.left > Console.WindowWidth)
-        {
-            _cursorPosition.top += _cursorPosition.left / Console.WindowWidth;
-            _cursorPosition.left %= Console.WindowWidth;
-            isNewLine = true;
-        }
-
-        return isNewLine;
-    }
-
     private void OnStatusChanged(string str)
     {
         string clearString = Esc.GetClearString(Esc.GetHeightString(_statusText));
@@ -124,7 +135,6 @@ internal class Writer
     {
         int height = Esc.GetHeightString(_statusText);
         string clearString = Esc.GetClearString(height);
-
         return Esc.GetDownString(clearString + Environment.NewLine + _statusText, 1, height + 1);
     }
 }

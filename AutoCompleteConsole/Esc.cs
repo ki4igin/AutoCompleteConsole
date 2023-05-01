@@ -49,7 +49,7 @@ public enum EscColor
     BackgroundWhite = 107,
 };
 
-internal static class Esc
+public static class Esc
 {
     public const string CursorEnableBlinking = "\u001b[?12h";
     public const string CursorDisableBlinking = "\u001b[?12l";
@@ -92,6 +92,7 @@ internal static class Esc
 
     public static string GetDownString(string str, int offset, int height) =>
         '\r' +
+        // Esc.ClearCurrentLine +
         new string('\n', offset) +
         str +
         CursorUp(offset + height - 1);

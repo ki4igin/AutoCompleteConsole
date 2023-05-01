@@ -12,17 +12,14 @@ public static class Acc
     static Acc()
     {
         NativeTerminal.EnableVirtualTerminalProcessing();
-
-        Console.Write(Esc.ScreenBufferAlternative);
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => OnExit();
+        Console.CancelKeyPress += (_, _) => OnExit();
         Console.Write(Esc.CursorHide);
-        Console.Write(Esc.CursorPosition(0, 0));
-        AppDomain.CurrentDomain.ProcessExit += (_, _) => Console.Write(Esc.ScreenBufferMain);
-        Console.CancelKeyPress += (_, _) => Console.Write(Esc.ScreenBufferMain);
 
         _commands = new()
         {
             ["clear"] = Clear,
-            ["quit"] = Quit
+            ["exit"] = Exit
         };
 
         _wr = new();
@@ -34,6 +31,14 @@ public static class Acc
 
         _rdStatus = _wr.CreateStatus();
         _rdStatus.Add(_rd);
+    }
+
+    public static void EnableScreenBufferAlternative()
+    {
+        Console.Write(Esc.ScreenBufferAlternative);
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => Console.Write(Esc.ScreenBufferMain);
+        Console.CancelKeyPress += (_, _) => Console.Write(Esc.ScreenBufferMain);
+        Console.Write(Esc.CursorPosition(0, 0));
     }
 
     public static void AddKeyWords(string[] keyWords) =>
@@ -69,9 +74,14 @@ public static class Acc
 
     public static void Write(string str) => _wr.Write(str);
     public static void Write(string str, EscColor color) => _wr.Write(str, color);
+    public static void WriteFirst(string str) => _wr.WriteFirst(str);
+    public static void WriteFirst(string str, EscColor color) => _wr.WriteFirst(str, color);
     public static void WriteLine() => _wr.WriteLine();
     public static void WriteLine(string str) => _wr.WriteLine(str);
     public static void WriteLine(string str, EscColor color) => _wr.WriteLine(str, color);
+    public static void WriteFirstLine() => _wr.WriteFirstLine();
+    public static void WriteFirstLine(string str) => _wr.WriteFirstLine(str);
+    public static void WriteFirstLine(string str, EscColor color) => _wr.WriteFirstLine(str, color);
 
     public static string ReadLine()
     {
@@ -82,9 +92,15 @@ public static class Acc
         return cmd;
     }
 
-    private static void Quit() =>
+    private static void OnExit()
+    {
+        Console.Write(Esc.CursorShow);
+        _rdStatus.Clear();
+    }
+
+    private static void Exit() =>
         Environment.Exit(0);
 
-    public static void Clear() =>
+    private static void Clear() =>
         _wr.Clear();
 }

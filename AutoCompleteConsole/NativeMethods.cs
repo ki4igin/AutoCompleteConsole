@@ -2,7 +2,7 @@
 
 namespace AutoCompleteConsole;
 
-internal static class NativeTerminal
+public static class NativeTerminal
 {
     [Flags]
     private enum OutputModeFlags
