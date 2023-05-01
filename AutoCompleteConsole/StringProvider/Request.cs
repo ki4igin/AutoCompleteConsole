@@ -50,7 +50,6 @@ public class Request : IStringProvider
         {
             ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 
-
             if (keyInfo.Key == ConsoleKey.Enter)
             {
                 if (validator(sb.ToString()) == "")

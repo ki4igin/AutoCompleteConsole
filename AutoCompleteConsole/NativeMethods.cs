@@ -34,7 +34,7 @@ public static class NativeTerminal
         {
             int consoleHandle = GetStdHandle(StdOutHandle);
             int dwMode = 0;
-            GetConsoleMode(consoleHandle, ref dwMode);
+            _ = GetConsoleMode(consoleHandle, ref dwMode);
             if ((dwMode & (int)OutputModeFlags.EnableVirtualTerminalProcessing) !=
                 (int)OutputModeFlags.EnableVirtualTerminalProcessing)
             {

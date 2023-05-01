@@ -130,7 +130,6 @@ internal class Writer
         WriteDown(clearString + text, 2, Esc.GetHeightString(text));
     }
 
-
     private string GetNewLineSuffixString()
     {
         int height = Esc.GetHeightString(_statusText);
